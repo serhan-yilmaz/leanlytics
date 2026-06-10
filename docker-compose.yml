@@ -1,0 +1,9 @@
+services:
+  frontend:
+    build: .
+    container_name: leanlytics-frontend
+
+    ports:
+      - "8080:80"
+
+    restart: unless-stopped
