@@ -1,4 +1,5 @@
 import { Box, Link, Typography } from '@mui/material'
+import { Link as RouterLink } from '@tanstack/react-router'
 
 export default function Footer() {
   return (
@@ -40,7 +41,12 @@ export default function Footer() {
           GitHub
         </Link>
 
-        <Link href="/privacy" underline="hover" color="inherit">
+        <Link
+          component={RouterLink}
+          to="/privacy"
+          underline="hover"
+          color="inherit"
+        >
           Privacy
         </Link>
       </Box>
