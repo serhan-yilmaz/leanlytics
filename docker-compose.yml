@@ -9,3 +9,21 @@ services:
       - "127.0.0.1:8080:80"
 
     restart: unless-stopped
+    
+  postgres:
+    image: postgres:18
+
+    container_name: leanlytics-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: leanlytics
+      POSTGRES_USER: leanlytics
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
