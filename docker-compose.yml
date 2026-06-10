@@ -1,6 +1,8 @@
 services:
   frontend:
-    build: .
+    build:
+      context: ./frontend
+
     container_name: leanlytics-frontend
 
     ports:
