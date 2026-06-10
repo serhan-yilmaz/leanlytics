@@ -1,0 +1,144 @@
+import PageHeader from '../components/ui/PageHeader'
+import PageContainer from '../components/ui/PageContainer'
+
+import ChartCard from '../components/ui/ChartCard'
+
+import TimeSeriesChart from '../components/charts/TimeSeriesChart.tsx'
+
+import { getMeasurements } from '../data/measurements'
+
+import {
+  charts,
+} from '../calculations/chartSeries'
+import XYTimeSeriesChart from '../components/charts/XYTimeSeriesChart.tsx'
+import { buildSmoothedBodyCompTable } from '../calculations/bodyCompSeries.ts'
+
+export default function Dashboard() {
+  const data = getMeasurements()
+  const smoothed = buildSmoothedBodyCompTable(data)
+
+  return (
+    <>
+      <PageHeader title="Dashboard" />
+
+      <PageContainer>
+        <ChartCard title="Body Weight (kg)">
+          <TimeSeriesChart 
+            data={charts.weight(data)} 
+            label = "Weight (kg)"
+            valueLabel = "Weight (kg)"
+          />
+        </ChartCard>
+        <ChartCard title="Waist (cm)">
+          <TimeSeriesChart 
+            data={charts.waist(data)} 
+            label = "Waist (cm)"
+            valueLabel = "Waist (cm)"
+          />
+        </ChartCard>
+        <ChartCard title="Body fat %">
+          <TimeSeriesChart 
+            data={charts.bodyFat(data)} 
+            label = "Bodyfat %"
+            valueLabel = "Bodyfat %"
+            yDomainPadding = {1}
+          />
+        </ChartCard>
+        <ChartCard title="Lean and Fat Mass (kg)">
+          <TimeSeriesChart 
+            data={charts.leanFatMass(data)} 
+            label="Lean Mass (kg)"
+            labelRight = "Fat Mass (kg)"
+            series={[
+              {
+                key: 'leanMass',
+                label: 'Lean Mass',
+                color: '#14b8a6',
+                yAxisId: 'left'
+              },
+              {
+                key: 'fatMass',
+                label: 'Fat Mass',
+                color: '#ef4444',
+                yAxisId: 'right'
+              },
+            ]}
+          />
+        </ChartCard>
+        <ChartCard title="Fat free mass index (FFMI)">
+          <TimeSeriesChart 
+            data={charts.FFMI(data)} 
+            label = "FFMI"
+            valueLabel = "FFMI"
+            yDomainPadding = {0.2}
+            yDomainRounding = {1}
+          />
+        </ChartCard>
+        <ChartCard title="Fat free mass index (FFMI) @ Body fat 15%">
+          <TimeSeriesChart 
+            data={charts.FFMIatBF15(data)} 
+            label = "FFMI"
+            valueLabel = "FFMI @BF15%"
+            yDomainPadding = {0.1}
+            yDomainRounding = {1}
+          />
+        </ChartCard>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 16,
+        }}
+      >
+        <ChartCard 
+          title="Weight (kg) vs Waist (cm)"
+        >
+          <XYTimeSeriesChart 
+            series={[
+              {
+                id: 'raw', 
+                label: 'Raw Measurements',
+                color: "#b33", 
+                type: "scatter", 
+                data: charts.weightVsWaist(data)
+              }, 
+              {
+                id: 'smoothed', 
+                label: 'Smoothed Series',
+                dots: 0, 
+                data: charts.weightVsWaist(smoothed)
+              }
+            ]} 
+            xLabel = "Waist (cm)"
+            yLabel = "Weight (kg)"
+            displaySeriesLabel = {true}
+          />
+        </ChartCard>
+
+        <ChartCard title="Lean mass (kg) vs Bodyfat %">
+          <XYTimeSeriesChart 
+            series={[
+              {
+                id: 'raw', 
+                label: 'Raw Measurements',
+                color: "#b33", 
+                type: "scatter", 
+                data: charts.leanMassVsBodyfat(data)
+              }, 
+              {
+                id: 'smoothed', 
+                label: 'Smoothed Series',
+                dots: 0,
+                data: charts.leanMassVsBodyfat(smoothed)
+              }
+            ]}  
+            yLabel = "Lean mass (kg)"
+            xLabel = "Bodyfat %"
+            displaySeriesLabel = {true}
+          />
+        </ChartCard>
+      </div>
+      </PageContainer>
+    </>
+  )
+}
