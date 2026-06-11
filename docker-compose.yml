@@ -20,7 +20,7 @@ services:
     environment:
       POSTGRES_DB: leanlytics
       POSTGRES_USER: leanlytics
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${LOCAL_POSTGRES_PASSWORD}
 
     volumes:
       - postgres_data:/var/lib/postgresql
