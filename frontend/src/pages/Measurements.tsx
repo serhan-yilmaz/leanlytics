@@ -67,7 +67,7 @@ export default function Measurements() {
         actionOnClick={openCreate}
       />
 
-      <PageContainer>
+      <PageContainer sx={{p: 1.2, pt: 2.5}}>
 
         <MeasurementTable
           data={data}

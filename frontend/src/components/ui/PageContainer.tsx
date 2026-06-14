@@ -1,25 +1,30 @@
-import { Box } from '@mui/material'
+import { Box, type SxProps, type Theme } from '@mui/material'
 import React from 'react'
 
 type PageContainerProps = {
   children: React.ReactNode
+  sx?: SxProps<Theme>
 }
 
-export default function PageContainer({ children }: PageContainerProps) {
+export default function PageContainer({ children, sx }: PageContainerProps) {
   return (
     <Box
-      sx={(theme) => ({
-      backgroundColor:
-        theme.palette.mode === 'dark'
-          // ? '#181c24'
-          ? '#1d2126'
-          : '#f3f8ff',
-        // bgcolor: 'background.default',
-        // backgroundColor: '#f3f8ff', // light blue tint
-        borderRadius: 2,
-        p: 2.5,
-        minHeight: 'calc(100vh - 140px)', // keeps layout stable
-      })}
+      sx={[(theme) => (
+        {
+          backgroundColor:
+            theme.palette.mode === 'dark'
+              // ? '#181c24'
+              ? '#1d2126'
+              : '#f3f8ff',
+            // bgcolor: 'background.default',
+            // backgroundColor: '#f3f8ff', // light blue tint
+            borderRadius: 2,
+            p: 2.5,
+            minHeight: 'calc(100vh - 140px)', // keeps layout stable
+        }
+      ), 
+      ...(Array.isArray(sx) ? sx : [sx])
+      ]}
     >
       {children}
     </Box>
