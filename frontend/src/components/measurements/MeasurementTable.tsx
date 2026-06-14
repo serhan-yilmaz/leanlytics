@@ -34,7 +34,7 @@ export default function MeasurementTable({
   // const pageSize = 5
   // const hidePagination = data.length <= pageSize
 
-  const columns: GridColDef[] = [
+  const allColumns: GridColDef[] = [
     { field: 'date', headerName: 'Date', flex: 1},
     { field: 'height', headerName: 'Height', flex: 1 },
     { field: 'weight', headerName: 'Weight', flex: 1 },
@@ -94,6 +94,17 @@ export default function MeasurementTable({
     'bodyFat',
     'actions',
   ]
+
+const columns = allColumns.map((col) => {
+  if (col.field === 'actions') {
+    return col
+  }
+
+  return {
+    ...col,
+    disableColumnMenu: true,
+  }
+})
 
   const visibleColumns = isMobile
     ? columns.filter((c) => mobileFields.includes(c.field))
