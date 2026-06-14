@@ -160,7 +160,7 @@ const lean15PerMonthTooltip =
   `${(lean15PerMonth).toFixed(2)} ± ${lean15PerMonthError.toFixed(2)} kg/month\n`
 
 const leanContributionTooltip = 
-  `Lean ${leanPerMonth >= 0 ? 'gain' : 'loss'}:: ${leanContribution.toFixed(0)}% ± ${leanContributionError.toFixed(0)}% of weight change\n`
+  `Lean ${leanPerMonth >= 0 ? 'gain' : 'loss'}: ${leanContribution.toFixed(0)}% ± ${leanContributionError.toFixed(0)}% of weight change\n`
 
 const centerDate = timestampToDate(
   0.5 * (dateToTimestamp(first.date) + dateToTimestamp(last.date))
