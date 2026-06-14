@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material'
+import { Box, Button, useMediaQuery, useTheme } from '@mui/material'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 
 import type { Measurement } from '../../data/types'
@@ -23,6 +23,11 @@ export default function MeasurementTable({
       </Box>
     )
   }
+
+  const theme = useTheme()
+  const isMobile = useMediaQuery(
+    theme.breakpoints.down('md')
+  )
 
   // const pageSize = 5
   // const hidePagination = data.length <= pageSize
@@ -77,11 +82,23 @@ export default function MeasurementTable({
     },
   ]
 
+  const mobileFields = [
+    'date',
+    'weight',
+    'waist',
+    'bodyFat',
+    'actions',
+  ]
+
+  const visibleColumns = isMobile
+    ? columns.filter((c) => mobileFields.includes(c.field))
+    : columns
+
   return (
     <Box sx={{ height: 'auto', width: '100%' }}>
       <DataGrid
         rows={data}
-        columns={columns}
+        columns={visibleColumns}
         getRowId={(row) => row.id}
         onRowDoubleClick={(params) => {
           onEdit?.(params.row.id)
