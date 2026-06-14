@@ -35,7 +35,7 @@ export default function MeasurementTable({
   // const hidePagination = data.length <= pageSize
 
   const allColumns: GridColDef[] = [
-    { field: 'date', headerName: 'Date', flex: 1},
+    { field: 'date', headerName: 'Date', flex: 1, minWidth: 100},
     { field: 'height', headerName: 'Height', flex: 1 },
     { field: 'weight', headerName: 'Weight', flex: 1, description: "Weight measurement (kg)", },
     { field: 'waist', headerName: 'Waist', flex: 1 },
