@@ -7,7 +7,7 @@ import {
   Button,
   Tooltip
 } from '@mui/material'
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+// import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 
 import PageContainer from '../components/ui/PageContainer'
 import HoverCard from '../components/ui/HoverCard'
@@ -33,6 +33,9 @@ import MetricValue from '../components/ui/MetricValue'
 // import TimeSeriesChart from '../components/charts/TimeSeriesChart'
 
 import { useTheme } from '@mui/material/styles'
+import { CompositionInsight, LeanNormalizedInsight } from '../components/plots/TrendInsight'
+import PlotRegistry from '../components/plots/PlotRegistry'
+// import { LeanVsBodyFatPlot, NormalizedMuscularityPlot, WeightBodyFatPlot, WeightVsWaistPlot } from '../components/trends/TrendPlot'
 
 export default function Landing() {
   const [data, setData] = useState(() => parseCSV(sampleDataRaw))
@@ -48,9 +51,6 @@ export default function Landing() {
     setData(parseCSV(path))
     forceRefresh((v) => v + 1)
   }
-
-  const theme = useTheme()
-  const isDark = theme.palette.mode === 'dark'
 
   return (
     <PageContainer>
@@ -396,7 +396,16 @@ export default function Landing() {
               > */}
 
         <HoverCard>
-        <ChartCard title="Weight (kg) and Body Fat %">
+        <PlotRegistry
+          type="weight-bodyfat"
+          data={data}
+          smoothed={smoothed}
+        />
+        {/* <WeightBodyFatPlot
+          data={data}
+          smoothed={smoothed}
+        /> */}
+        {/* <ChartCard title="Weight (kg) and Body Fat %">
           <TimeSeriesChart 
             data={charts.weightBodyfat(smoothed)} 
             label="Weight (kg)"
@@ -426,10 +435,14 @@ export default function Landing() {
               },
             ]}
           />
-        </ChartCard>
+        </ChartCard> */}
         </HoverCard>
 
         {trend && (
+          <CompositionInsight trend={trend} />
+        )}
+
+        {/* {trend && (
         <Box
             sx={{
                 display: 'flex',
@@ -465,7 +478,7 @@ export default function Landing() {
             .
             </Typography>
         </Box>
-        )}
+        )} */}
 
       <div
         style={{
@@ -476,7 +489,16 @@ export default function Landing() {
         }}
       >
         <HoverCard>
-        <ChartCard 
+        <PlotRegistry
+          type="weight-waist"
+          data={data}
+          smoothed={smoothed}
+        />
+        {/* <WeightVsWaistPlot
+          data={data}
+          smoothed={smoothed}
+        /> */}
+        {/* <ChartCard 
             title="Weight (kg) vs Waist (cm)"
             paperSx = {{
               backgroundColor: 'background.paper'
@@ -506,11 +528,20 @@ export default function Landing() {
             displaySeriesLabel = {true}
             height = {180}
           />
-        </ChartCard>
+        </ChartCard> */}
         </HoverCard>
 
         <HoverCard>
-        <ChartCard 
+        <PlotRegistry
+          type="lean-bodyfat"
+          data={data}
+          smoothed={smoothed}
+        />
+        {/* <LeanVsBodyFatPlot
+          data={data}
+          smoothed={smoothed}
+        /> */}
+        {/* <ChartCard 
             title="Lean mass (kg) vs Bodyfat %"
             paperSx = {{
                 backgroundColor: 'background.paper'
@@ -543,11 +574,21 @@ export default function Landing() {
             displaySeriesLabel = {true}
             height = {180}
           />
-        </ChartCard>
+        </ChartCard> */}
         </HoverCard>
 
         <HoverCard>
-        <ChartCard 
+        <PlotRegistry
+          type="normalized-muscularity"
+          data={data}
+          smoothed={smoothed}
+        />
+        {/* <NormalizedMuscularityPlot
+          data={data}
+          smoothed={smoothed}
+        >
+        </NormalizedMuscularityPlot> */}
+        {/* <ChartCard 
             title = "Normalized Muscularity (Lean @ 15%)"
             // title="Lean mass (kg) @ Body fat 15%"
             paperSx = {{
@@ -578,7 +619,7 @@ export default function Landing() {
             displaySeriesLabel = {true}
             height = {180}
           />
-        </ChartCard>
+        </ChartCard> */}
         </HoverCard>
 
         {/* <ChartCard title="Lean mass (kg) @ Body fat 15%">
@@ -593,6 +634,10 @@ export default function Landing() {
         </div>
 
         {trend && (
+          <LeanNormalizedInsight trend={trend} />
+        )}
+
+        {/* {trend && (
         <Box
             sx={{
                 display: 'flex',
@@ -602,21 +647,6 @@ export default function Landing() {
                 marginTop: 1
             }}
         >
-            {/* <Typography variant="body2">
-            Current Trend:{' '}
-            <strong>
-                {trend.weightPerMonth.toFixed(2)}
-                {' '}kg/month
-            </strong>{' '}
-            weight gain, with estimated{' '}
-            <strong>
-                {trend.leanPerMonth.toFixed(2)}
-                {' '}kg/month
-            </strong>{' '}
-            lean mass contribution (
-            {trend.leanContribution.toFixed(0)}%).
-            </Typography> */}
-
             <Typography
             variant="body2"
             sx={{ mt: 1, maxWidth: (trend.lean15PerMonth<-0.1? 730: 750)}}
@@ -636,7 +666,6 @@ export default function Landing() {
             </MetricValue>
             {' '}net muscularity {trend.lean15PerMonth>0? "gain" : "change"}{' '}
             (Lean @ 15%). 
-            {/* <br></br>{trend.test_output} */}
 
             <Tooltip
               title={
@@ -657,7 +686,7 @@ export default function Landing() {
             </Tooltip>
             </Typography>
         </Box>
-        )}
+        )} */}
 
                 {/* Dashboard preview */}
               {/* </Box> */}
