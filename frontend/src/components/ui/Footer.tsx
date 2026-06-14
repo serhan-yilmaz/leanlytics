@@ -2,23 +2,30 @@ import { Box, Link, Typography } from '@mui/material'
 import { Link as RouterLink } from '@tanstack/react-router'
 
 export default function Footer() {
+
   return (
     <Box
       component="footer"
-      sx={{
+      sx={(theme) => ({
         mt: 0,
         py: 3,
         px: 2,
-        borderTop: '1px solid #eee',
+        // borderTop: '1px solid #eee',
+        borderTop: '1px solid',
+        borderColor: 'divider', 
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: 2,
         fontSize: 13,
-        color: '#777',
-        backgroundColor: '#FBFBFD'
-      }}
+        // color: '#777',
+        // backgroundColor: '#FBFBFD'
+        color: theme.palette.mode === 'dark'? '#909090': '#777', 
+        backgroundColor: theme.palette.mode === 'dark'
+          ? '#1e1e1e'
+          : '#FBFBFD',
+      })}
     >
       {/* Left */}
       <Typography sx={{ fontSize: 13 }}>

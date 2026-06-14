@@ -21,9 +21,11 @@ export default function ChartCard({
       {
         mb: 1.5, 
         p: 2,
-        border: '1px solid #e5e5e5',
+        // border: '1px solid #e5e5e5',
+        border: '1px solid',
+        borderColor: 'divider', 
         borderRadius: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: 'background.paper',
         // ...paperSx
       }, 
       ...(Array.isArray(paperSx) ? paperSx : [paperSx]), 

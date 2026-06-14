@@ -1,7 +1,9 @@
 import { Link, Outlet, useMatchRoute } from '@tanstack/react-router'
-import { AppBar, Toolbar, Box, Button, Stack, IconButton} from '@mui/material'
+import { AppBar, Toolbar, Box, Button, Stack, IconButton, useTheme} from '@mui/material'
 
+// import logo from '../../assets/leanlytics_logo.png'
 import logo from '../../assets/leanlytics_logo.png'
+import logoDark from '../../assets/leanlytics_logo_darkmode.png'
 
 import SettingsIcon from '@mui/icons-material/Settings'
 import Footer from '../../components/ui/Footer'
@@ -12,16 +14,22 @@ export default function AppLayout() {
   const isActive = (to: string) =>
     !!matchRoute({ to, fuzzy: false })
 
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
+
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
       
       {/* TOP BAR */}
       <AppBar
         position="static"
         elevation={0}
         sx={{
-          backgroundColor: '#ffffff',
-          borderBottom: '2.5px solid #c6c6c6',
+          bgcolor: 'background.paper',
+          // backgroundColor: '#000000',
+          // borderBottom: '2.5px solid #c6c6c6',
+          borderBottom: '2.5px solid',
+          borderColor: 'divider',
         }}
       >
         <Toolbar sx={{ gap: 3 }}>
@@ -39,7 +47,7 @@ export default function AppLayout() {
             >
             <Box
                 component="img"
-                src={logo}
+                src={isDark? logoDark: logo}
                 alt="Leanlytics"
                 sx={{
                 height: 50,

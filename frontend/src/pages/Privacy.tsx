@@ -2,6 +2,10 @@ import { Box, Typography } from '@mui/material'
 import PageContainer from '../components/ui/PageContainer'
 
 export default function Privacy() {
+
+  // const theme = useTheme()
+  // const isDark = theme.palette.mode === 'dark'
+
   return (
     <PageContainer>
     <Box
@@ -20,7 +24,7 @@ export default function Privacy() {
         Privacy Policy
       </Typography>
 
-      <Typography sx={{ mb: 3, color: '#555' }}>
+      <Typography sx={{ mb: 3}}>
         Leanlytics stores data either locally in your browser or in your account, depending on how you use the app.
       </Typography>
 
@@ -28,7 +32,7 @@ export default function Privacy() {
         When using the app without an account:
       </Typography>
 
-      <Typography component="div" sx={{ mb: 3, color: '#555' }}>
+      <Typography component="div" sx={{ mb: 3}}>
         - All data stays in your browser (localStorage)<br />
         - No personal measurement data is sent to a server
       </Typography>
@@ -37,16 +41,16 @@ export default function Privacy() {
         When using an account:
       </Typography>
 
-      <Typography component="div" sx={{ mb: 3, color: '#555' }}>
+      <Typography component="div" sx={{ mb: 3 }}>
         - Your measurement data is stored securely on a server<br />
         - Data is linked only to your account for syncing
       </Typography>
 
-      <Typography sx={{ mb: 3, color: '#555' }}>
+      <Typography sx={{ mb: 3 }}>
         We may collect minimal anonymous usage and error data to improve reliability. This does not include your health or measurement data. We do not sell or share personal data with third parties.
       </Typography>
 
-      <Typography sx={{ mb: 3, color: '#555' }}>
+      <Typography sx={{ mb: 3 }}>
         You can delete your account and all associated data at any time.
       </Typography>
     </Box>

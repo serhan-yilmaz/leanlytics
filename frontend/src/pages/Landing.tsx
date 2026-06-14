@@ -32,6 +32,8 @@ import sampleData3Raw from '../data/mock/sample_data3.csv?raw'
 import MetricValue from '../components/ui/MetricValue'
 // import TimeSeriesChart from '../components/charts/TimeSeriesChart'
 
+import { useTheme } from '@mui/material/styles'
+
 export default function Landing() {
   const data = getMeasurements()
   const smoothed = buildSmoothedBodyCompTable(data)
@@ -45,6 +47,9 @@ export default function Landing() {
     saveMeasurements(parseCSV(path))
     forceRefresh((v) => v + 1)
   }
+
+const theme = useTheme()
+const isDark = theme.palette.mode === 'dark'
 
   return (
     <PageContainer>
@@ -407,7 +412,7 @@ export default function Landing() {
                 key: 'weight',
                 label: 'Weight (kg)',
                 // color: "blue", 
-                color: "#333", 
+                color: isDark ? '#dfdfdf' : '#333',
                 // color: "#2222dd", 
                 // color: '#1976d2',
                 yAxisId: 'left'
@@ -466,14 +471,15 @@ export default function Landing() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
           gap: 16,
-          background: '#ffffff', 
+          backgroundColor: 'background.default', 
         }}
       >
         <HoverCard>
         <ChartCard 
             title="Weight (kg) vs Waist (cm)"
             paperSx = {{
-                backgroundColor: '#fdfdfd'
+              backgroundColor: 'background.paper'
+                // backgroundColor: '#fdfdfd'
             }}
         >
           <XYTimeSeriesChart 
@@ -506,7 +512,7 @@ export default function Landing() {
         <ChartCard 
             title="Lean mass (kg) vs Bodyfat %"
             paperSx = {{
-                backgroundColor: '#fdfdfd'
+                backgroundColor: 'background.paper'
             }}
         >
           <XYTimeSeriesChart 
@@ -544,7 +550,7 @@ export default function Landing() {
             title = "Normalized Muscularity (Lean @ 15%)"
             // title="Lean mass (kg) @ Body fat 15%"
             paperSx = {{
-                backgroundColor: '#fdfdfd'
+                backgroundColor: 'background.paper'
             }}
         >
           <XYTimeSeriesChart 
