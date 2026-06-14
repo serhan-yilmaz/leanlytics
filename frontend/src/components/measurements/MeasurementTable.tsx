@@ -1,5 +1,7 @@
-import { Box, Button, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, IconButton, useMediaQuery, useTheme } from '@mui/material'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 import type { Measurement } from '../../data/types'
 
@@ -43,7 +45,8 @@ export default function MeasurementTable({
     {
       field: 'bodyFat',
       headerName: 'BF%',
-      width: 100,
+      // width: 100,
+      flex: 1, 
       sortable: false,
 
       valueGetter: (_, row) => {
@@ -60,23 +63,25 @@ export default function MeasurementTable({
       headerName: '',
       sortable: false,
       filterable: false,
-      width: 160,
+      flex: 1, 
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
+          <IconButton
             size="small"
             onClick={() => onEdit?.(params.row.id)}
           >
-            Edit
-          </Button>
+            <EditIcon fontSize="small" />
+            {/* Edit */}
+          </IconButton>
 
-          <Button
+          <IconButton
             size="small"
             color="error"
             onClick={() => onDelete(params.row.id)}
           >
-            X
-          </Button>
+           <DeleteIcon fontSize="small" />
+            {/* X */}
+          </IconButton>
         </Box>
       ),
     },
@@ -85,7 +90,7 @@ export default function MeasurementTable({
   const mobileFields = [
     'date',
     'weight',
-    'waist',
+    // 'waist',
     'bodyFat',
     'actions',
   ]
@@ -94,22 +99,27 @@ export default function MeasurementTable({
     ? columns.filter((c) => mobileFields.includes(c.field))
     : columns
 
+  const sortedData = [...data].sort((a, b) =>
+    b.date.localeCompare(a.date)
+  )
+
   return (
     <Box sx={{ height: 'auto', width: '100%' }}>
       <DataGrid
-        rows={data}
+        rows={sortedData}
         columns={visibleColumns}
         getRowId={(row) => row.id}
         onRowDoubleClick={(params) => {
           onEdit?.(params.row.id)
         }}
         disableRowSelectionOnClick
+        disableColumnSorting
         initialState={{
-          sorting: {
-            sortModel: [
-              { field: 'date', sort: 'desc' },
-            ],
-          },
+          // sorting: {
+          //   sortModel: [
+          //     { field: 'date', sort: 'desc' },
+          //   ],
+          // },
           pagination: { paginationModel: { pageSize: 10, page: 0 } },
         }}
         sx={{
