@@ -121,7 +121,7 @@ export default function AppLayout() {
         <>
           <Box sx={{ ml: 'auto' }}>
             <IconButton onClick={openMenu}>
-              <MenuIcon />
+              <MenuIcon  sx={{ fontSize: 38 }}/>
             </IconButton>
           </Box>
           <Menu
