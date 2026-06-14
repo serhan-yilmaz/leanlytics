@@ -5,17 +5,77 @@ import ChartCard from '../components/ui/ChartCard'
 
 import TimeSeriesChart from '../components/charts/TimeSeriesChart.tsx'
 
-import { getMeasurements } from '../data/measurements'
+import { getMeasurements, saveMeasurements } from '../data/measurements'
+
+import { useNavigate } from '@tanstack/react-router'
 
 import {
   charts,
 } from '../calculations/chartSeries'
 import XYTimeSeriesChart from '../components/charts/XYTimeSeriesChart.tsx'
 import { buildSmoothedBodyCompTable } from '../calculations/bodyCompSeries.ts'
+import { parseCSV } from '../data/storage.ts'
+
+import { Button, Paper, Stack, Typography } from '@mui/material'
+import sampleDataRaw from '../data/mock/measurements.csv?raw'
 
 export default function Dashboard() {
   const data = getMeasurements()
   const smoothed = buildSmoothedBodyCompTable(data)
+
+  const hasData = data.length > 0
+
+  const navigate = useNavigate()
+
+  const handleSampleData = () => {
+    saveMeasurements(parseCSV(sampleDataRaw)) 
+    window.location.reload() 
+  }
+
+  if (!hasData) {
+    return (
+      <>
+        <PageHeader title="Dashboard" />
+
+        <PageContainer>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" gutterBottom>
+              No measurement data yet
+            </Typography>
+
+            <Typography variant="body2" sx={{ mb: 3, opacity: 0.7 }}>
+              Start tracking your body composition or try a sample dataset.
+            </Typography>
+
+            <Stack direction="row" spacing={2} sx={{ justifyContent: 'center' }}>
+              <Button
+                variant="outlined"
+                onClick={handleSampleData}
+              >
+                Try sample dataset
+              </Button>
+
+              <Button
+                variant="contained"
+                onClick={() => navigate({ to: '/measurements' })}
+              >
+                Start tracking
+              </Button>
+            </Stack>
+          </Paper>
+        </PageContainer>
+      </>
+    )
+  }
 
   return (
     <>
