@@ -5,7 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 
 import type { Measurement } from '../../data/types'
 
-import { calculateBodyFat } from '../../calculations/bodyComposition'
+import { calculateBodyCompAtBF, calculateBodyFat } from '../../calculations/bodyComposition'
 
 type Props = {
   data: Measurement[]
@@ -37,7 +37,7 @@ export default function MeasurementTable({
   const allColumns: GridColDef[] = [
     { field: 'date', headerName: 'Date', flex: 1},
     { field: 'height', headerName: 'Height', flex: 1 },
-    { field: 'weight', headerName: 'Weight', flex: 1 },
+    { field: 'weight', headerName: 'Weight', flex: 1, description: "Weight measurement (kg)", },
     { field: 'waist', headerName: 'Waist', flex: 1 },
     { field: 'neck', headerName: 'Neck', flex: 1 },
     { field: 'hip', headerName: 'Hip', flex: 1 },
@@ -45,7 +45,7 @@ export default function MeasurementTable({
     {
       field: 'bodyFat',
       headerName: 'BF%',
-      // width: 100,
+      description: "Body fat estimate (%)", 
       flex: 1, 
       sortable: false,
 
@@ -56,6 +56,27 @@ export default function MeasurementTable({
           waist: row.waist,
           neck: row.neck,
         })
+      },
+    }, 
+    {
+      field: 'muscularity',
+      headerName: 'Lean@15',
+      description: 'Lean mass estimate (kg) at 15% body fat', 
+      flex: 1, 
+      sortable: false,
+
+      valueGetter: (_, row) => {
+        return calculateBodyCompAtBF({
+          weight: row.weight, 
+          height: row.height,
+          bodyFat: calculateBodyFat({
+            sex: "male", 
+            height: row.height,
+            waist: row.waist,
+            neck: row.neck,
+          }),
+          bfTarget: 15
+        }).leanMass.toFixed(1)
       },
     }, 
     {
@@ -92,6 +113,7 @@ export default function MeasurementTable({
     'weight',
     // 'waist',
     'bodyFat',
+    'muscularity', 
     'actions',
   ]
 
@@ -126,6 +148,14 @@ const columns = allColumns.map((col) => {
         disableRowSelectionOnClick
         disableColumnSorting
         initialState={{
+          columns: {
+            columnVisibilityModel: {
+              height: false,
+              hip: false,
+              chest: false,
+              muscularity: !isMobile
+            },
+          },
           // sorting: {
           //   sortModel: [
           //     { field: 'date', sort: 'desc' },
