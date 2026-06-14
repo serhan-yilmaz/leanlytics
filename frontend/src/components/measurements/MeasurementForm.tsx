@@ -72,7 +72,7 @@ const fields: FieldConfig[] = [
     required: false,
     min: 10,
     max: 100,
-    placeholder: 'Neck circumference in cm',
+    placeholder: 'Neck in cm',
   },
     {
     name: 'weight',
@@ -92,7 +92,7 @@ const fields: FieldConfig[] = [
     required: true,
     min: 40,
     max: 300,
-    placeholder: 'Waist circumference in cm',
+    placeholder: 'Waist in cm',
   },
   {
     name: 'hip',
@@ -102,7 +102,7 @@ const fields: FieldConfig[] = [
     required: false,
     min: 20,
     max: 300,
-    placeholder: 'Hip circumference in cm',
+    placeholder: 'Hip in cm',
   },
   {
     name: 'chest',
@@ -112,7 +112,8 @@ const fields: FieldConfig[] = [
     required: false,
     min: 20,
     max: 300,
-    placeholder: 'Chest circumference in cm',
+    placeholder: 'Chest in cm',
+    // placeholder: 'Chest circumference in cm',
   },
 ] as const
 
