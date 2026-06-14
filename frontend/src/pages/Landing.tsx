@@ -17,7 +17,7 @@ import { buildSmoothedBodyCompTable } from '../calculations/bodyCompSeries'
 import { charts } from '../calculations/chartSeries'
 import { getMeasurements, saveMeasurements } from '../data/measurements'
 
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import TimeSeriesChart from '../components/charts/TimeSeriesChart'
 import { getBodyCompTrendSummary } from '../calculations/bodyCompTrendSummary'
 import { parseCSV } from '../data/storage'
@@ -35,7 +35,8 @@ import MetricValue from '../components/ui/MetricValue'
 import { useTheme } from '@mui/material/styles'
 
 export default function Landing() {
-  const data = getMeasurements()
+  const [data, setData] = useState(() => parseCSV(sampleDataRaw))
+  // const data = getMeasurements()
   const smoothed = buildSmoothedBodyCompTable(data)
   const trend = getBodyCompTrendSummary(smoothed)
   const navigate = useNavigate()
@@ -44,12 +45,12 @@ export default function Landing() {
   const refresh = () => forceRefresh(k => k + 1) 
   
   const handleSampleData = (path: string) => {
-    saveMeasurements(parseCSV(path))
+    setData(parseCSV(path))
     forceRefresh((v) => v + 1)
   }
 
-const theme = useTheme()
-const isDark = theme.palette.mode === 'dark'
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
 
   return (
     <PageContainer>
@@ -701,11 +702,19 @@ const isDark = theme.palette.mode === 'dark'
               </Button>
 
               <Button
+                component={Link}
+                to="/measurements"
                 variant="outlined"
                 size="large"
               >
                 Start tracking
               </Button>
+              {/* <Button
+                variant="outlined"
+                size="large"
+              >
+                Start tracking
+              </Button> */}
 
             </Stack>
 

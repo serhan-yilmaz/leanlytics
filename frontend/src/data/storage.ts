@@ -65,9 +65,14 @@ export function saveDB(db: DB) {
 export function resetDB(): DB {
   localStorage.removeItem(KEY)
 
+  // const seeded: DB = {
+  //   profile: null,
+  //   measurements: parseCSV(csvRaw),
+  // }
+
   const seeded: DB = {
     profile: null,
-    measurements: parseCSV(csvRaw),
+    measurements: []
   }
 
   localStorage.setItem(KEY, JSON.stringify(seeded))
