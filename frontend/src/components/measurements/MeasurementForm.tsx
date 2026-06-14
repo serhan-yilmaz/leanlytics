@@ -69,7 +69,7 @@ const fields: FieldConfig[] = [
     label: 'Neck',
     type: 'number',
     grid: 6,
-    required: false,
+    required: true,
     min: 10,
     max: 100,
     placeholder: 'Neck in cm',
