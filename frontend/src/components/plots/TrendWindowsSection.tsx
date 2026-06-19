@@ -345,7 +345,7 @@ export default function TrendWindowsSection({
                   )}
                   unitSuffix={`%/${unitSuffix}`}
                   confidenceScore={
-                    confidenceScore / 1.5
+                    confidenceScore / 1.67
                   }
                 />
 
