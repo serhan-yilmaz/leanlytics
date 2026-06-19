@@ -5,7 +5,7 @@ import ChartCard from '../components/ui/ChartCard'
 
 import TimeSeriesChart from '../components/charts/TimeSeriesChart.tsx'
 
-import { getMeasurements, saveMeasurements } from '../data/measurements'
+import { getMeasurements, saveMeasurements, sortMeasurements } from '../data/measurements'
 
 import { useNavigate } from '@tanstack/react-router'
 
@@ -21,18 +21,24 @@ import sampleDataRaw from '../data/mock/measurements.csv?raw'
 import { findSlopeWindows } from '../calculations/windowSolver.ts'
 import { buildWindowBodyCompTable } from '../calculations/windowBodyComp.ts'
 import TrendWindowsSection from '../components/plots/TrendWindowsSection.tsx'
+import { useState } from 'react'
 
 export default function Dashboard() {
-  const data = getMeasurements()
-  const smoothed = buildSmoothedBodyCompTable(data)
-  const slopeWindows = buildWindowBodyCompTable(data, findSlopeWindows(data))
-  // console.log(findSlopeWindows(data));
-  // console.log(slopeWindows);
-
+  const navigate = useNavigate()
+  
+  const data = sortMeasurements(getMeasurements())
   const hasData = data.length > 0
 
-  const navigate = useNavigate()
+  const [analysisMeasurementIndex, setAnalysisMeasurementIndex] = useState(0);
 
+  const smoothed = buildSmoothedBodyCompTable(data)
+  const slopeWindows = buildWindowBodyCompTable(
+    data, 
+    findSlopeWindows(data, analysisMeasurementIndex)
+  )
+  // console.log(findSlopeWindows(data));
+  // console.log(slopeWindows);
+  
   const handleSampleData = () => {
     saveMeasurements(parseCSV(sampleDataRaw)) 
     window.location.reload() 
@@ -88,7 +94,15 @@ export default function Dashboard() {
       <PageHeader title="Dashboard" />
 
       <PageContainer>
-        <TrendWindowsSection slopeWindows={slopeWindows}/>
+      <TrendWindowsSection
+        slopeWindows={slopeWindows}
+        measurements={data}
+        analysisMeasurementIndex={analysisMeasurementIndex}
+        onAnalysisMeasurementIndexChange={
+          setAnalysisMeasurementIndex
+        }
+      />
+        {/* <TrendWindowsSection slopeWindows={slopeWindows}/> */}
 
         <ChartCard title="Body Weight (kg)">
           <TimeSeriesChart 

@@ -3,11 +3,14 @@ import {
   Paper,
   Typography,
   Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   IconButton,
+  Menu,
+  MenuItem,
+  Select,
+  FormControl,
 } from '@mui/material'
+
+import SettingsIcon from '@mui/icons-material/Settings'
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 
@@ -20,15 +23,26 @@ import type {
 import MetricValue from '../ui/MetricValue'
 import TrendConfidenceDialog from './TrendConfidenceDialog'
 
+import type { Measurement } from '../../data/types'
+
 type Props = {
   slopeWindows: Record<
     string,
     WindowBodyCompPair | null
   >
+
+  measurements: Measurement[]
+
+  analysisMeasurementIndex: number
+
+  onAnalysisMeasurementIndexChange: (
+    index: number,
+  ) => void
 }
 
 const scoreThresholds = [
   {
+    key: 'high',
     color: '#4caf50',
     threshold: 1.5,
     label: '🟢 High confidence',
@@ -37,6 +51,7 @@ const scoreThresholds = [
       'Long duration and/or many measurements support the trend.',
   },
   {
+    key: 'medium',
     color: '#ffb300',
     threshold: 0.5,
     label: '🟡 Medium confidence',
@@ -45,6 +60,7 @@ const scoreThresholds = [
       'Trend is plausible but should be interpreted cautiously.',
   },
   {
+    key: 'low',
     color: '#ef5350',
     threshold: 0,
     label: '🔴 Low confidence',
@@ -53,6 +69,27 @@ const scoreThresholds = [
       'Trend is based on limited data or a short time span and may change substantially with additional measurements.',
   },
 ]
+
+function getThreshold(key: 'high' | 'medium' | 'low') {
+  return scoreThresholds.find((t) => t.key === key)!
+}
+
+const REQUIRED_MINIMUM_CONFIDENCE_SCORE = 0.15;
+
+const confidenceFilters = [
+  {
+    value: REQUIRED_MINIMUM_CONFIDENCE_SCORE,
+    label: 'All',
+  },
+  {
+    value: getThreshold('medium').threshold,
+    label: 'Medium+',
+  },
+  {
+    value: getThreshold('high').threshold,
+    label: 'High only',
+  },
+] as const
 
 function getConfidenceMeta(score?: number) {
   if (score == null) {
@@ -93,12 +130,14 @@ function MetricText({
   tooltip,
   unitSuffix,
   confidenceScore,
+  minimumConfidenceScore = REQUIRED_MINIMUM_CONFIDENCE_SCORE
 }: {
   label: string
   value?: React.ReactNode
   tooltip?: string
   unitSuffix: string
-  confidenceScore?: number
+  confidenceScore?: number,
+  minimumConfidenceScore?: number
 }) {
   const metricComponent = (
     <Typography variant="body2">
@@ -116,7 +155,7 @@ function MetricText({
   const confidenceColor =
     getConfidenceColor(confidenceScore)
 
-  if (confidenceScore <= 0.15) {
+  if (confidenceScore < minimumConfidenceScore) {
     return <></>
   }
 
@@ -157,9 +196,20 @@ function MetricText({
 
 export default function TrendWindowsSection({
   slopeWindows,
+  measurements,
+  analysisMeasurementIndex,
+  onAnalysisMeasurementIndexChange,
 }: Props) {
   const [confidenceOpen, setConfidenceOpen] =
     useState(false)
+
+  const [minimumConfidenceScore, setMinimumConfidenceScore] =
+    useState(REQUIRED_MINIMUM_CONFIDENCE_SCORE)
+
+  const [optionsAnchorEl, setOptionsAnchorEl] =
+    useState<HTMLElement | null>(null)
+
+  const optionsOpen = Boolean(optionsAnchorEl)
 
   const entries =
     Object.entries(slopeWindows)
@@ -169,7 +219,13 @@ export default function TrendWindowsSection({
         ): x is [
           string,
           WindowBodyCompPair,
-        ] => x[1] !== null,
+        ] => (
+          x[1] !== null &&
+          x[1].windowSolution.score >= Math.max(
+              REQUIRED_MINIMUM_CONFIDENCE_SCORE,
+              minimumConfidenceScore,
+            )
+        ),
       )
       .sort(
         (a, b) =>
@@ -239,9 +295,47 @@ export default function TrendWindowsSection({
 
   return (
     <>
-      <Typography sx={{ mb: 1 }}>
-        Body Composition Change Trends
-      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          mb: 1,
+        }}
+      >
+        <Box>
+          <Typography>
+            Body Composition Change Trends
+          </Typography>
+
+          {analysisMeasurementIndex > 0 && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+            >
+              As of{' '}
+              {
+                measurements[
+                  analysisMeasurementIndex
+                ]?.date
+              }
+            </Typography>
+          )}
+        </Box>
+
+        <IconButton
+          size="small"
+          sx={{ ml: 'auto' }}
+          onClick={(e) =>
+            setOptionsAnchorEl(
+              e.currentTarget,
+            )
+          }
+        >
+          <SettingsIcon
+            fontSize="small"
+          />
+        </IconButton>
+      </Box>
 
       <Box
         sx={{
@@ -282,12 +376,14 @@ export default function TrendWindowsSection({
                     'space-between',
                 }}
               >
-                <Typography variant="subtitle2">
-                  {
-                    pair.windowSolution
-                      .label
-                  }
-                </Typography>
+                <Tooltip title = {`${pair.first.date} → ${pair.last.date}`}>
+                  <Typography variant="subtitle2">
+                    {
+                      pair.windowSolution
+                        .label
+                    }
+                  </Typography>
+                </Tooltip>
 
                 <Tooltip
                   title={t.test_output}
@@ -332,6 +428,7 @@ export default function TrendWindowsSection({
                   confidenceScore={
                     confidenceScore
                   }
+                  minimumConfidenceScore={minimumConfidenceScore}
                 />
 
                 <MetricText
@@ -347,6 +444,7 @@ export default function TrendWindowsSection({
                   confidenceScore={
                     confidenceScore / 1.67
                   }
+                  minimumConfidenceScore={minimumConfidenceScore}
                 />
 
                 <MetricText
@@ -362,6 +460,7 @@ export default function TrendWindowsSection({
                   confidenceScore={
                     confidenceScore / 3
                   }
+                  minimumConfidenceScore={minimumConfidenceScore}
                 />
 
                 <MetricText
@@ -375,6 +474,7 @@ export default function TrendWindowsSection({
                   confidenceScore={
                     confidenceScore / 6
                   }
+                  minimumConfidenceScore={minimumConfidenceScore}
                 />
               </Box>
             </Paper>
@@ -383,6 +483,102 @@ export default function TrendWindowsSection({
 
         {legendElement}
       </Box>
+
+      <Menu
+        anchorEl={optionsAnchorEl}
+        open={optionsOpen}
+        onClose={() =>
+          setOptionsAnchorEl(null)
+        }
+      >
+        <Box
+          sx={{
+            p: 2,
+            width: 280,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+          }}
+        >
+          <Box>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 1 }}
+            >
+              Analysis Date
+            </Typography>
+
+            <FormControl
+              fullWidth
+              size="small"
+            >
+              <Select
+                value={
+                  analysisMeasurementIndex
+                }
+                onChange={(e) =>
+                  onAnalysisMeasurementIndexChange(
+                    Number(e.target.value),
+                  )
+                }
+              >
+                {measurements.map(
+                  (
+                    measurement,
+                    index,
+                  ) => (
+                    <MenuItem
+                      key={
+                        measurement.id
+                      }
+                      value={index}
+                    >
+                      {measurement.date}
+                      {index === 0
+                        ? ' (Latest)'
+                        : ''}
+                    </MenuItem>
+                  ),
+                )}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 1 }}
+            >
+              Confidence Filter
+            </Typography>
+
+            <FormControl
+              fullWidth
+              size="small"
+            >
+              <Select
+                value={minimumConfidenceScore}
+                onChange={(e) =>
+                  setMinimumConfidenceScore(
+                    Number(e.target.value),
+                  )
+                }
+              >
+                {confidenceFilters.map(
+                  (filter) => (
+                    <MenuItem
+                      key={filter.label}
+                      value={filter.value}
+                    >
+                      {filter.label}
+                    </MenuItem>
+                  ),
+                )}
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
+      </Menu>
 
       <TrendConfidenceDialog
         open={confidenceOpen}

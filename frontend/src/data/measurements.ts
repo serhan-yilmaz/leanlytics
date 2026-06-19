@@ -39,3 +39,15 @@ export function saveMeasurements(measurements: Measurement[]) {
   saveDB(db)
   return measurements
 }
+
+export function sortMeasurements(
+  measurements: Measurement[],
+  direction: "asc" | "desc" = "desc"
+): Measurement[] {
+  return [...measurements].sort((a, b) => {
+    const diff =
+      new Date(a.date).getTime() - new Date(b.date).getTime();
+
+    return direction === "asc" ? diff : -diff;
+  });
+}

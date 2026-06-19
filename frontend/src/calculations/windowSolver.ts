@@ -63,6 +63,7 @@ function omit<T extends object, K extends keyof T>(obj: T, key: K) {
 
 export function findSlopeWindows(
   measurements: Measurement[],
+  startIndex: number = 0
 ): Record<string, WindowSolution | null> {
 
   const data = [...measurements].sort(
@@ -83,11 +84,21 @@ export function findSlopeWindows(
 
   let state: State = {
     iteration: 1, 
-    firstStart: 1,
-    firstEnd: 1,
+    firstStart: 1 + startIndex,
+    firstEnd: 1 + startIndex,
 
-    lastStart: 0,
-    lastEnd: 0,
+    lastStart: startIndex,
+    lastEnd: startIndex,
+  }
+
+  if (
+    !isValidState(
+      data,
+      data.length,
+      state,
+    )
+  ) {
+    return results
   }
 
   const maxDelay =

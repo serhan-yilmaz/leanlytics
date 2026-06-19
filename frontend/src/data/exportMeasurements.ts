@@ -1,3 +1,4 @@
+import { sortMeasurements } from './measurements'
 import type { Measurement } from './types'
 
 function csvEscape(value: unknown) {
@@ -16,6 +17,8 @@ export function exportMeasurements(
     'hip',
     'chest',
   ]
+
+  measurements = sortMeasurements(measurements)
 
   const rows = measurements.map((m) => [
     m.date,
