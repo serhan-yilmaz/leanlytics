@@ -161,6 +161,51 @@ if(confidenceScore <= 0.15){
   )
 }
 
+const legendElement = (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 2,
+      mt: 0.5,
+      color: 'text.secondary',
+      fontSize: 12,
+      mb: 1.5
+    }}
+  >
+    <Typography
+      variant="caption"
+      sx={{ color: 'text.secondary' }}
+    >
+      Confidence:
+    </Typography>
+
+    {scoreThresholds.map(x => (
+      <Box
+        key={x.label}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5,
+        }}
+      >
+        <Box
+          sx={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            backgroundColor: x.color,
+            boxShadow: `0 0 0 2px ${x.color}33`,
+          }}
+        />
+        <Typography variant="caption">
+          {x.label}
+        </Typography>
+      </Box>
+    ))}
+  </Box>
+)
+
 export default function TrendWindowsSection({
   slopeWindows,
 }: Props) {
@@ -319,6 +364,7 @@ export default function TrendWindowsSection({
             </Paper>
           )
         })}
+       {legendElement}
       </Box>
     </>
   )
