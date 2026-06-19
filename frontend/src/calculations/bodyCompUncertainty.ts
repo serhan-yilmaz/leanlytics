@@ -43,7 +43,6 @@ export function fatMassSD(
   const sBFr = model.bodyFat.sigmaRandom
 
   const BF = bf(bodyFat)
-
   
   const termBias = weight ** 2 * sBFu ** 2
   const termWeight = BF ** 2 * sW ** 2 / n
@@ -183,6 +182,20 @@ export function weightDiffSD(
   const termWeight = sW ** 2 * (1 / ni + 1 / nj)
   return Math.sqrt(
     termWeight
+  )
+}
+
+export function bodyfatDiffSD(
+  i: BodyCompPoint,
+  j: BodyCompPoint,
+  model: BodyCompErrorModel = errorModel
+): number {
+  const sBFr = model.bodyFat.sigmaRandom
+  const ni = i.sampleCount
+  const nj = j.sampleCount
+  const termBF = sBFr ** 2 * (1 / ni + 1 / nj)
+  return Math.sqrt(
+    termBF
   )
 }
 

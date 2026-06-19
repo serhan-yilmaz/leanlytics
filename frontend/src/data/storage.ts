@@ -47,14 +47,20 @@ export function parseCSV(csv: string): Measurement[] {
 export function loadDB(): DB {
   const raw = localStorage.getItem(KEY)
   if (!raw) {
-    const seeded: DB = {
+    return {
       profile: null,
-      measurements: parseCSV(csvRaw),
+      measurements: []
     }
-
-    localStorage.setItem(KEY, JSON.stringify(seeded))
-    return seeded
   }
+  // if (!raw) {
+  //   const seeded: DB = {
+  //     profile: null,
+  //     measurements: parseCSV(csvRaw),
+  //   }
+
+  //   localStorage.setItem(KEY, JSON.stringify(seeded))
+  //   return seeded
+  // }
   return JSON.parse(raw)
 }
 

@@ -18,10 +18,16 @@ import { parseCSV } from '../data/storage.ts'
 
 import { Button, Paper, Stack, Typography } from '@mui/material'
 import sampleDataRaw from '../data/mock/measurements.csv?raw'
+import { findSlopeWindows } from '../calculations/windowSolver.ts'
+import { buildWindowBodyCompTable } from '../calculations/windowBodyComp.ts'
+import TrendWindowsSection from '../components/plots/TrendWindowsSection.tsx'
 
 export default function Dashboard() {
   const data = getMeasurements()
   const smoothed = buildSmoothedBodyCompTable(data)
+  const slopeWindows = buildWindowBodyCompTable(data, findSlopeWindows(data))
+  // console.log(findSlopeWindows(data));
+  // console.log(slopeWindows);
 
   const hasData = data.length > 0
 
@@ -82,6 +88,8 @@ export default function Dashboard() {
       <PageHeader title="Dashboard" />
 
       <PageContainer>
+        <TrendWindowsSection slopeWindows={slopeWindows}/>
+
         <ChartCard title="Body Weight (kg)">
           <TimeSeriesChart 
             data={charts.weight(data)} 

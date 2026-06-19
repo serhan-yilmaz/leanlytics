@@ -3,6 +3,7 @@ import React from 'react'
 import MetricValue from '../ui/MetricValue'
 
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import type { BodyCompTrendSummary } from '../../calculations/bodyCompTrendSummary'
 
 type Props = {
   children: React.ReactNode
@@ -27,9 +28,9 @@ export default function InsightBlock({ children, mt = 1.5 }: Props) {
   )
 }
 
-export function LeanNormalizedInsight({ trend }: { trend: any }) {
-  const lean = trend.lean15PerMonth
-  const weight = trend.weightPerMonth
+export function LeanNormalizedInsight({ trend }: { trend: BodyCompTrendSummary }) {
+  const lean = trend.lean15Rate
+  const weight = trend.weightRate
   const isWarning = lean < -0.1
 
   return (
@@ -45,17 +46,27 @@ export function LeanNormalizedInsight({ trend }: { trend: any }) {
 
         approximately{' '}
 
-        <MetricValue tooltip={trend.lean15PerMonthTooltip}>
+        <MetricValue tooltip={trend.lean15Tooltip}>
             {lean.toFixed(2)} kg/month
         </MetricValue>
 
         {' '}net muscularity {lean > 0 ? 'gain' : 'change'} (Lean @ 15%).
         <Tooltip
+          // title = {trend.test_output}
             title={
             <span style={{ whiteSpace: 'pre-line' }}>
                 {trend.test_output}
             </span>
             }
+            slotProps={{
+              tooltip: {
+                sx: {
+                  maxWidth: "none",
+                  // maxWidth: "none",
+                  whiteSpace: "nowrap",
+                },
+              },
+            }}
         >
             <InfoOutlinedIcon
             sx={{
@@ -71,34 +82,34 @@ export function LeanNormalizedInsight({ trend }: { trend: any }) {
   )
 }
 
-export function CompositionInsight({ trend }: { trend: any }) {
+export function CompositionInsight({ trend }: { trend: BodyCompTrendSummary }) {
   return (
     <InsightBlock mt={1.5}>
         Current Trend:{' '}
 
-        <MetricValue tooltip={trend.weightPerMonthTooltip}>
-        {Math.abs(trend.weightPerMonth).toFixed(2)} kg/month
+        <MetricValue tooltip={trend.weightTooltip}>
+        {Math.abs(trend.weightRate).toFixed(2)} kg/month
         </MetricValue>
 
-        {' '}weight {trend.weightPerMonth > 0 ? 'gain' : 'loss'}, with estimated{' '}
+        {' '}weight {trend.weightRate> 0 ? 'gain' : 'loss'}, with estimated{' '}
 
         <MetricValue tooltip={trend.leanFatCompositionTooltip}>
-        {trend.weightPerMonth > 0
-            ? Math.abs(trend.leanPerMonth).toFixed(2)
-            : Math.abs(trend.fatPerMonth).toFixed(2)} kg/month
+        {trend.weightRate> 0
+            ? Math.abs(trend.leanRate).toFixed(2)
+            : Math.abs(trend.fatRate).toFixed(2)} kg/month
         </MetricValue>
 
         {' '}
 
-        {trend.weightPerMonth > 0 ? 'lean' : 'fat'} mass{' '}
-        {(trend.weightPerMonth > 0 ? trend.leanPerMonth : trend.fatPerMonth) > 0
+        {trend.weightRate > 0 ? 'lean' : 'fat'} mass{' '}
+        {(trend.weightRate > 0 ? trend.leanRate : trend.fatRate) > 0
         ? 'contribution'
         : 'reduction'}
 
         {' '}
 
         <MetricValue tooltip={trend.leanContributionTooltip} bold={false}>
-        ({trend.weightPerMonth > 0
+        ({trend.weightRate > 0
             ? trend.leanContribution.toFixed(0)
             : trend.fatContribution.toFixed(0)}
         %)

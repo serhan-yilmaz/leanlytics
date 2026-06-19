@@ -23,9 +23,9 @@ import { getBodyCompTrendSummary } from '../calculations/bodyCompTrendSummary'
 import { parseCSV } from '../data/storage'
 import { useState } from 'react'
 
-import sampleDataRaw from '../data/mock/measurements.csv?raw'
-// import sampleDataRaw from '../data/mock/sample_data5.csv?raw'
-// import sampleDataRaw from '../data/mock/sample_data_combined.csv?raw'
+// import sampleDataRaw from '../data/mock/measurements.csv?raw'
+// import sampleDataRaw from '../data/mock/extra/sample_data5.csv?raw'
+import sampleDataRaw from '../data/mock/extra/sample_data_combined.csv?raw'
 // import sampleDataRaw from '../data/mock/sample_data_few.csv?raw'
 import sampleData2Raw from '../data/mock/sample_data2.csv?raw'
 import sampleData3Raw from '../data/mock/sample_data3.csv?raw'
@@ -35,6 +35,8 @@ import MetricValue from '../components/ui/MetricValue'
 import { useTheme } from '@mui/material/styles'
 import { CompositionInsight, LeanNormalizedInsight } from '../components/plots/TrendInsight'
 import PlotRegistry from '../components/plots/PlotRegistry'
+import { findSlopeWindows } from '../calculations/windowSolver'
+import { buildWindowBodyCompTable } from '../calculations/windowBodyComp'
 // import { LeanVsBodyFatPlot, NormalizedMuscularityPlot, WeightBodyFatPlot, WeightVsWaistPlot } from '../components/trends/TrendPlot'
 
 export default function Landing() {
@@ -43,6 +45,8 @@ export default function Landing() {
   const smoothed = buildSmoothedBodyCompTable(data)
   const trend = getBodyCompTrendSummary(smoothed)
   const navigate = useNavigate()
+  const slope_windows = buildWindowBodyCompTable(data, findSlopeWindows(data))
+  // console.log(slope_windows);
 
   const [, forceRefresh] = useState(0)
   const refresh = () => forceRefresh(k => k + 1) 
@@ -50,6 +54,7 @@ export default function Landing() {
   const handleSampleData = (path: string) => {
     setData(parseCSV(path))
     forceRefresh((v) => v + 1)
+    
   }
 
   return (
