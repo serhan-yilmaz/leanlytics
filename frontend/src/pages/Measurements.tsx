@@ -67,7 +67,7 @@ export default function Measurements() {
     <>
       <PageHeader
         title="Measurements"
-        actionLabel="+ Add New"
+        actionLabel="+ New"
         actionOnClick={openCreate}
         actions={
           <Tooltip title="Export CSV">
