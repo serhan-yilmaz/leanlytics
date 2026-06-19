@@ -24,17 +24,20 @@ const scoreThresholds = [
     {
         color: "#4caf50", 
         threshold: 1.5, 
-        label: 'High confidence'
+        label: 'High confidence',
+        legendLabel: 'High',
     },
     {
         color: "#ffb300", 
         threshold: 0.5, 
-        label: 'Medium confidence'
+        label: 'Medium confidence',
+        legendLabel: 'Medium',
     },
     {
         color: "#ef5350", 
         threshold: 0, 
-        label: 'Low confidence'
+        label: 'Low confidence',
+        legendLabel: 'Low',
     }
 ]
 
@@ -165,6 +168,8 @@ const legendElement = (
   <Box
     sx={{
       display: 'flex',
+      marginLeft: 'auto', 
+      marginRight: 'auto', 
       alignItems: 'center',
       gap: 2,
       mt: 0.5,
@@ -182,7 +187,7 @@ const legendElement = (
 
     {scoreThresholds.map(x => (
       <Box
-        key={x.label}
+        key={x.legendLabel}
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -199,7 +204,7 @@ const legendElement = (
           }}
         />
         <Typography variant="caption">
-          {x.label}
+          {x.legendLabel}
         </Typography>
       </Box>
     ))}
