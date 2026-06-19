@@ -1,4 +1,5 @@
 import type { Measurement } from '../data/types'
+import { timestampToDate } from './util'
 
 type Target = {
   key: string, 
@@ -23,9 +24,11 @@ type State = {
   iteration: number
   firstStart: number
   firstEnd: number
+  firstCenterSum: number
 
   lastStart: number
   lastEnd: number
+  lastCenterSum: number
 }
 
 type Candidate = State & {
@@ -56,15 +59,39 @@ export type WindowSolution = {
   label: string
 }
 
+export type ValidWindowTarget = {
+  target: number
+  tolerance: number
+  score: number
+  date: string
+}
+
+export type WindowSolutionResults = {
+  solutions: Record<string, WindowSolution | null>
+  targets: ValidWindowTarget[]
+}
+
 function omit<T extends object, K extends keyof T>(obj: T, key: K) {
   const { [key]: _, ...rest } = obj;
   return rest;
 }
 
+export function safeTimestampAt(
+  data: { date: string }[],
+  index: number,
+): number {
+  if (index < 0 || index >= data.length) {
+    return 0
+  }
+
+  return getTimestamp(data[index].date)
+}
+
 export function findSlopeWindows(
   measurements: Measurement[],
-  startIndex: number = 0
-): Record<string, WindowSolution | null> {
+  startIndex: number = 0,
+  validWindowTarget?: ValidWindowTarget
+): WindowSolutionResults {
 
   const data = [...measurements].sort(
     (a, b) =>
@@ -72,13 +99,32 @@ export function findSlopeWindows(
       new Date(a.date).getTime(),
   )
 
-  const results: Record<string, WindowSolution | null> = {}
+  const results: WindowSolutionResults = {
+    solutions: {}, 
+    targets: []
+  }
 
-  for (const target of TARGETS) {
-    results[target.key] = null
+  let targets = structuredClone(TARGETS)
+  if(validWindowTarget){
+    targets.push({
+      key: "Custom", 
+      label: `Comparison Anchor (${validWindowTarget.date})`, 
+      target: validWindowTarget.target,
+      tolerance: validWindowTarget.tolerance
+    })
+    // console.log(validWindowTarget)
+    // console.log(targets)
+  }
+
+  for (const target of targets) {
+    results.solutions[target.key] = null
   }
 
   if (data.length < 2) {
+    return results
+  }
+
+  if((startIndex + 1) >= data.length){
     return results
   }
 
@@ -86,9 +132,14 @@ export function findSlopeWindows(
     iteration: 1, 
     firstStart: 1 + startIndex,
     firstEnd: 1 + startIndex,
-
+    firstCenterSum: (
+      getTimestamp(data[1 + startIndex].date)
+    ), 
     lastStart: startIndex,
     lastEnd: startIndex,
+    lastCenterSum: (
+      getTimestamp(data[ startIndex].date)
+    ), 
   }
 
   if (
@@ -103,7 +154,7 @@ export function findSlopeWindows(
 
   const maxDelay =
     Math.max(
-      ...TARGETS.map(
+      ...targets.map(
         t => t.target + t.tolerance,
       ),
     )
@@ -119,8 +170,7 @@ export function findSlopeWindows(
       break
     }
 
-    const score =
-      optimizationFunction(
+    const score = optimizationFunction(
         data,
         state,
       )
@@ -128,6 +178,7 @@ export function findSlopeWindows(
     updateTargetSolutions(
       results,
       data, 
+      targets, 
       state,
       delayDays,
       score,
@@ -143,6 +194,10 @@ export function findSlopeWindows(
         lastStart:
           state.lastStart + 1,
 
+        lastCenterSum: state.lastCenterSum + (
+          + safeTimestampAt(data, 1 + state.lastStart)
+        ), 
+
         _action: "enlarge-last"
       },
 
@@ -153,6 +208,11 @@ export function findSlopeWindows(
 
         firstStart:
           state.firstStart + 1,
+
+        firstCenterSum: state.firstCenterSum + (
+          + safeTimestampAt(data, 1 + state.firstStart)
+        ), 
+
         _action: "enlarge-first"
       },
 
@@ -171,6 +231,13 @@ export function findSlopeWindows(
 
         lastEnd:
           state.lastEnd,
+
+        firstCenterSum: state.firstCenterSum + (
+          + safeTimestampAt(data, 1 + state.firstStart)
+          - safeTimestampAt(data, state.firstEnd)
+        ), 
+
+        lastCenterSum: state.lastCenterSum, 
 
         _action: "shift-first"
       },
@@ -288,14 +355,17 @@ function optimizationFunction(
     state.lastEnd +
     1
   
-  const firstCenter = centerTimestamp(
-      data, state.firstStart, state.firstEnd
-    );
+  // const firstCenter = centerTimestamp(
+  //     data, state.firstStart, state.firstEnd
+  //   );
   
-  const lastCenter = centerTimestamp(
-      data, state.lastStart, state.lastEnd
-    );
+  // const lastCenter = centerTimestamp(
+  //     data, state.lastStart, state.lastEnd
+  //   );
 
+  const firstCenter = getFirstCenter(data, state)
+  const lastCenter = getLastCenter(data, state)
+  
   const score = confidenceScore({
     firstCenter: firstCenter, 
     lastCenter: lastCenter, 
@@ -317,14 +387,36 @@ function optimizationFunction(
 }
 
 function updateTargetSolutions(
-  results: Record<string, WindowSolution | null>,
+  results: WindowSolutionResults,
   data: Measurement[], 
+  targets: Target[], 
   state: State,
   delayDays: number,
   score: number,
 ) {
+  // const windowCenter = timestampToDate(getWindowCenter(data, state))
+  
+  let previousTargetMax = 0
+  if(results.targets.length >= 1){
+    const target = results.targets[results.targets.length - 1]
+    previousTargetMax = target.target + target.tolerance
+  }
 
-  for (const target of TARGETS) {
+  let currentTarget = Math.round(delayDays);
+
+  if(currentTarget > previousTargetMax){
+    results.targets.push(
+      {
+        target: Math.round(delayDays),
+        // tolerance: 4, 
+        score: score, 
+        date: timestampToDate(getFirstCenter(data, state)),
+        tolerance: Math.ceil(2 + delayDays / 7),
+      }
+    )
+  }
+  
+  for (const target of targets) {
 
     const min =
       target.target -
@@ -350,7 +442,7 @@ function updateTargetSolutions(
         target.target,
       )
 
-    const current = results[target.key]
+    const current = results.solutions[target.key]
 
     const shouldReplace =
       !current ||
@@ -367,7 +459,7 @@ function updateTargetSolutions(
       continue
     }
 
-    results[target.key] = {
+    results.solutions[target.key] = {
       found: true,
 
       targetDays:
@@ -491,11 +583,13 @@ function computeDelayDays(
   state: State,
 ): number {
 
-  const firstCenter = centerTimestamp(
-      data,
-      state.firstStart,
-      state.firstEnd,
-    )
+  // const firstCenter = centerTimestamp(
+  //     data,
+  //     state.firstStart,
+  //     state.firstEnd,
+  //   )
+
+  const firstCenter = getFirstCenter(data, state)
 
   const last = getTimestamp(data[state.lastEnd].date)
 
@@ -511,22 +605,56 @@ function millisecondsToDays(
     return value / 86400000
 }
 
+function getFirstCenter(
+  data: Measurement[],
+  state: State,
+): number {
+  return state.firstCenterSum / (state.firstStart - state.firstEnd + 1)
+}
+
+function getLastCenter(
+  data: Measurement[],
+  state: State,
+): number {
+  return state.lastCenterSum / (state.lastStart - state.lastEnd + 1)
+}
+
+function getWindowCenter(
+  data: Measurement[],
+  state: State,
+): number {
+  return (
+    + getFirstCenter(data, state) 
+    + getLastCenter(data, state)
+  ) / 2
+}
+
 function computeDurationDays(
   data: Measurement[],
   state: State,
 ): number {
 
-  const firstCenter = centerTimestamp(
-      data,
-      state.firstStart,
-      state.firstEnd,
-    )
+  // const firstCenter = centerTimestamp(
+  //     data,
+  //     state.firstStart,
+  //     state.firstEnd,
+  //   )
 
-  const lastCenter = centerTimestamp(
-      data,
-      state.lastStart,
-      state.lastEnd,
-    )
+  // const lastCenter = centerTimestamp(
+  //     data,
+  //     state.lastStart,
+  //     state.lastEnd,
+  //   )
+
+  const firstCenter = getFirstCenter(data, state)
+  const lastCenter = getLastCenter(data, state)
+
+  // console.log({
+  //   firstCenter,
+  //   firstCenter2,
+  //   lastCenter,
+  //   lastCenter2
+  // })
 
   return millisecondsToDays(
     lastCenter

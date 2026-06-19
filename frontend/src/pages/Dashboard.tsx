@@ -30,13 +30,24 @@ export default function Dashboard() {
   const hasData = data.length > 0
 
   const [analysisMeasurementIndex, setAnalysisMeasurementIndex] = useState(0);
+  const [customComparisonIndex, onCustomComparisonIndexChange] =
+    useState<number | undefined>(undefined)
 
   const smoothed = buildSmoothedBodyCompTable(data)
+
+  const slopeSolutionResults = findSlopeWindows(data, analysisMeasurementIndex)
+
+  const validWindowTarget = (
+    customComparisonIndex != undefined && 
+    customComparisonIndex<slopeSolutionResults.targets.length
+  )? slopeSolutionResults.targets[customComparisonIndex] : undefined
+
   const slopeWindows = buildWindowBodyCompTable(
     data, 
-    findSlopeWindows(data, analysisMeasurementIndex)
+    findSlopeWindows(data, analysisMeasurementIndex, validWindowTarget)
   )
-  // console.log(findSlopeWindows(data));
+  // console.log(validWindowTarget);
+  // console.log(slopeSolutionResults.targets);
   // console.log(slopeWindows);
   
   const handleSampleData = () => {
@@ -95,12 +106,13 @@ export default function Dashboard() {
 
       <PageContainer>
       <TrendWindowsSection
-        slopeWindows={slopeWindows}
-        measurements={data}
-        analysisMeasurementIndex={analysisMeasurementIndex}
-        onAnalysisMeasurementIndexChange={
-          setAnalysisMeasurementIndex
-        }
+          slopeWindows={slopeWindows}
+          windowSolutionResults={slopeSolutionResults}
+          measurements={data}
+          analysisMeasurementIndex={analysisMeasurementIndex}
+          onAnalysisMeasurementIndexChange={setAnalysisMeasurementIndex} 
+          customComparisonIndex={customComparisonIndex} 
+          onCustomComparisonIndexChange={onCustomComparisonIndexChange}
       />
         {/* <TrendWindowsSection slopeWindows={slopeWindows}/> */}
 

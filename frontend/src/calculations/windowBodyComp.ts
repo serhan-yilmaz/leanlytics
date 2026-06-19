@@ -1,7 +1,9 @@
 import type { Measurement } from '../data/types'
 
 import type {
+  ValidWindowTarget,
   WindowSolution,
+  WindowSolutionResults,
 } from './windowSolver'
 
 import {
@@ -45,7 +47,7 @@ export type WindowBodyCompPair = {
 
 export function buildWindowBodyCompTable(
   measurements: Measurement[],
-  solutions: Record<string, WindowSolution | null>,
+  results: WindowSolutionResults,
 ): Record<string, WindowBodyCompPair | null> {
 
   const data = [...measurements].sort(
@@ -59,7 +61,7 @@ export function buildWindowBodyCompTable(
     WindowBodyCompPair | null
   > = {}
 
-  for (const [key, solution] of Object.entries(solutions)) {
+  for (const [key, solution] of Object.entries(results.solutions)) {
 
     if (!solution) {
       result[key] = null

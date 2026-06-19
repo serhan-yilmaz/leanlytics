@@ -8,10 +8,11 @@ import {
   MenuItem,
   Select,
   FormControl,
+  Alert,
 } from '@mui/material'
 
 import SettingsIcon from '@mui/icons-material/Settings'
-
+import HelpOutlineIcon from '@mui/icons-material/HelpOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 
 import { useState } from 'react'
@@ -24,12 +25,15 @@ import MetricValue from '../ui/MetricValue'
 import TrendConfidenceDialog from './TrendConfidenceDialog'
 
 import type { Measurement } from '../../data/types'
+import type { WindowSolutionResults } from '../../calculations/windowSolver'
 
 type Props = {
   slopeWindows: Record<
     string,
     WindowBodyCompPair | null
   >
+
+  windowSolutionResults: WindowSolutionResults
 
   measurements: Measurement[]
 
@@ -38,6 +42,9 @@ type Props = {
   onAnalysisMeasurementIndexChange: (
     index: number,
   ) => void
+
+  customComparisonIndex: number | undefined
+  onCustomComparisonIndexChange: (index: number | undefined) => void
 }
 
 const scoreThresholds = [
@@ -130,7 +137,7 @@ function MetricText({
   tooltip,
   unitSuffix,
   confidenceScore,
-  minimumConfidenceScore = REQUIRED_MINIMUM_CONFIDENCE_SCORE
+  minimumConfidenceScore = REQUIRED_MINIMUM_CONFIDENCE_SCORE, 
 }: {
   label: string
   value?: React.ReactNode
@@ -197,8 +204,11 @@ function MetricText({
 export default function TrendWindowsSection({
   slopeWindows,
   measurements,
+  windowSolutionResults, 
   analysisMeasurementIndex,
   onAnalysisMeasurementIndexChange,
+  customComparisonIndex, 
+  onCustomComparisonIndexChange
 }: Props) {
   const [confidenceOpen, setConfidenceOpen] =
     useState(false)
@@ -210,6 +220,17 @@ export default function TrendWindowsSection({
     useState<HTMLElement | null>(null)
 
   const optionsOpen = Boolean(optionsAnchorEl)
+
+  // const isAnchorValid =
+  //   customComparisonIndex == null ||
+  //   customComparisonIndex < analysisMeasurementIndex
+
+  const isAnchorValid =
+    customComparisonIndex == undefined || 
+    analysisMeasurementIndex == undefined || 
+    windowSolutionResults.targets.length < customComparisonIndex || 
+    windowSolutionResults.targets[customComparisonIndex] == undefined || 
+    windowSolutionResults.targets[customComparisonIndex].date < measurements[analysisMeasurementIndex].date
 
   const entries =
     Object.entries(slopeWindows)
@@ -576,6 +597,51 @@ export default function TrendWindowsSection({
                 )}
               </Select>
             </FormControl>
+          </Box>
+
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="subtitle2">
+                Comparison Anchor
+              </Typography>
+
+              <Tooltip title="Adds an additional reference point into trend comparison. Must be before analysis date.">
+                <HelpOutlineIcon fontSize="small" />
+              </Tooltip>
+            </Box>
+
+            <FormControl fullWidth size="small">
+              <Select
+                value={
+                  customComparisonIndex ?? ''
+                }
+                displayEmpty
+                onChange={(e) => {
+                  const v = e.target.value
+                  onCustomComparisonIndexChange(
+                    v
+                  )
+                }}
+              >
+                <MenuItem value={''}>
+                  Auto (default)
+                </MenuItem>
+
+                {windowSolutionResults.targets.map((m, index) => (
+                  (m.score >= minimumConfidenceScore) && (
+                  <MenuItem key={m.target} value={index}>
+                    {m.date}
+                    {/* {index === 0 ? ' (Latest)' : ''} */}
+                  </MenuItem>
+                  )
+                ))}
+              </Select>
+            </FormControl>
+            {!isAnchorValid && (
+              <Alert severity="error" sx={{ mb: 1 }}>
+                Comparison anchor must be before the analysis date.
+              </Alert>
+            )}
           </Box>
         </Box>
       </Menu>
