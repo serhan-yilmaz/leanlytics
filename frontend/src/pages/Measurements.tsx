@@ -72,7 +72,7 @@ export default function Measurements() {
         actions={
           <Tooltip title="Export CSV">
             <IconButton
-              onClick={() => {exportMeasurements(data); console.log(data)}}
+              onClick={() => {exportMeasurements(data);}}
               sx={{
                 color: 'white',
               }}

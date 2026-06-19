@@ -288,7 +288,8 @@ export default function TrendWindowTooltip({
 
         {diff.confidenceScore && (
           <MetricRow
-            label={`Confidence Score: ${diff.confidenceScore.toFixed(1)}`}
+            label={`Trend Confidence: ×${diff.confidenceScore.toFixed(1)}`}
+            // label={`Confidence Score: ×${diff.confidenceScore.toFixed(1)}`}
             sxProps={{ fontSize: 13.5 }}
           />
         )}
