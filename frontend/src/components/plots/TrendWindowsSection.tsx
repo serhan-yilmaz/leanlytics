@@ -119,10 +119,10 @@ function MetricText({
 const metricComponent = (
     <Typography variant="body2">
         {label}:{' '}
-        <MetricValue tooltip={tooltip}>
-            {value}
-        </MetricValue>{' '}
-        {unitSuffix}
+        <MetricValue tooltip={tooltip} bold={false}>
+            <strong>{value}</strong>
+            {' '}{unitSuffix}
+        </MetricValue>
     </Typography>
 )
 
