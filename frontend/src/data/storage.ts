@@ -22,6 +22,58 @@ function toNumber(v: string | undefined): number | undefined {
 
 export function parseCSV(csv: string): Measurement[] {
   const lines = csv.trim().split('\n')
+
+  const header = lines[0]
+    .split(',')
+    .map(h => h.trim().toLowerCase())
+
+  const rows = lines.slice(1)
+
+  const getIndex = (key: string) =>
+    header.indexOf(key)
+
+  const iId = getIndex('id')
+  const iDate = getIndex('date')
+  const iWeight = getIndex('weight')
+  const iWaist = getIndex('waist')
+  const iNeck = getIndex('neck')
+  const iChest = getIndex('chest')
+  const iHeight = getIndex('height')
+  const iHip = getIndex('hip')
+
+  return rows
+    .map(row => {
+      const cols = row.split(',').map(c => c.trim())
+
+      const get = (i: number) =>
+        i >= 0 ? cols[i] : undefined
+
+      const m: Measurement = {
+        id: get(iId) ?? crypto.randomUUID(),
+        date: get(iDate) ?? '',
+        weight: toNumber(get(iWeight)),
+        waist: toNumber(get(iWaist)),
+        neck: toNumber(get(iNeck)),
+        chest: toNumber(get(iChest)),
+        height: toNumber(get(iHeight)),
+        hip: toNumber(get(iHip)),
+      }
+
+      return m
+    })
+    .filter(m =>
+      m.date &&
+      m.weight != null &&
+      m.waist != null
+    )
+    .sort(
+      (a, b) =>
+        b.date.localeCompare(a.date),
+    )
+}
+
+export function parseSampleCSV(csv: string): Measurement[] {
+  const lines = csv.trim().split('\n')
   const [, ...rows] = lines
 
   return rows.map(row => {

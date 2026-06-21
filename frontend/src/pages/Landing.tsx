@@ -20,7 +20,7 @@ import { getMeasurements, saveMeasurements } from '../data/measurements'
 import { Link, useNavigate } from '@tanstack/react-router'
 import TimeSeriesChart from '../components/charts/TimeSeriesChart'
 import { getBodyCompTrendSummary } from '../calculations/bodyCompTrendSummary'
-import { parseCSV } from '../data/storage'
+import { parseSampleCSV } from '../data/storage'
 import { useState } from 'react'
 
 import sampleDataRaw from '../data/mock/measurements.csv?raw'
@@ -40,7 +40,7 @@ import { buildWindowBodyCompTable } from '../calculations/windowBodyComp'
 // import { LeanVsBodyFatPlot, NormalizedMuscularityPlot, WeightBodyFatPlot, WeightVsWaistPlot } from '../components/trends/TrendPlot'
 
 export default function Landing() {
-  const [data, setData] = useState(() => parseCSV(sampleDataRaw))
+  const [data, setData] = useState(() => parseSampleCSV(sampleDataRaw))
   // const data = getMeasurements()
   const smoothed = buildSmoothedBodyCompTable(data)
   const trend = getBodyCompTrendSummary(smoothed)
@@ -52,7 +52,7 @@ export default function Landing() {
   const refresh = () => forceRefresh(k => k + 1) 
   
   const handleSampleData = (path: string) => {
-    setData(parseCSV(path))
+    setData(parseSampleCSV(path))
     forceRefresh((v) => v + 1)
     
   }

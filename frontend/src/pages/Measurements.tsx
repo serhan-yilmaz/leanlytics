@@ -1,14 +1,14 @@
 import { useState } from 'react'
 
 import DownloadIcon from '@mui/icons-material/Download'
+import UploadIcon from '@mui/icons-material/Upload'
+
 import { IconButton, Tooltip } from '@mui/material'
 
 import PageHeader from '../components/ui/PageHeader'
 import PageContainer from '../components/ui/PageContainer'
 import MeasurementTable from '../components/measurements/MeasurementTable'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
-
-
 
 import {
   getMeasurements,
@@ -21,22 +21,34 @@ import { useToast } from '../components/ui/useToast'
 import AppToast from '../components/ui/AppToast'
 import type { Measurement } from '../data/types'
 import MeasurementForm from '../components/measurements/MeasurementForm'
-import { Box, Button } from '@mui/material'
 import { exportMeasurements } from '../data/exportMeasurements'
 
-export default function Measurements() {
-  const [deleteId, setDeleteId] = useState<string | null>(null)
+import ImportMeasurementsDialog from '../components/measurements/ImportMeasurementsDialog'
 
-  const { toast, showToast, hideToast } = useToast()
+export default function Measurements() {
+  const [deleteId, setDeleteId] =
+    useState<string | null>(null)
+
+  const { toast, showToast, hideToast } =
+    useToast()
 
   const data = getMeasurements()
   const latestMeasurement = data[0]
 
-  const [, forceRefresh] = useState(0)
-  const refresh = () => forceRefresh(k => k + 1)
+  console.log(data)
 
-  const [formOpen, setFormOpen] = useState(false)
-  const [editItem, setEditItem] = useState<Measurement | null>(null)
+  const [, forceRefresh] = useState(0)
+  const refresh = () =>
+    forceRefresh((k) => k + 1)
+
+  const [formOpen, setFormOpen] =
+    useState(false)
+
+  const [editItem, setEditItem] =
+    useState<Measurement | null>(null)
+
+  const [importOpen, setImportOpen] =
+    useState(false)
 
   const openCreate = () => {
     setEditItem(null)
@@ -44,7 +56,8 @@ export default function Measurements() {
   }
 
   const openEdit = (id: string) => {
-    const item = data.find(x => x.id === id)
+    const item = data.find((x) => x.id === id)
+
     if (!item) return
 
     setEditItem(item)
@@ -70,37 +83,31 @@ export default function Measurements() {
         actionLabel="+ New"
         actionOnClick={openCreate}
         actions={
-          <Tooltip title="Export CSV">
-            <IconButton
-              onClick={() => {exportMeasurements(data);}}
-              sx={{
-                color: 'white',
-              }}
-            >
-              <DownloadIcon />
-            </IconButton>
-          </Tooltip>
+          <>
+            <Tooltip title="Import CSV">
+              <IconButton
+                onClick={() => setImportOpen(true)}
+                sx={{ color: 'white' }}
+              >
+                <UploadIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Export CSV">
+              <IconButton
+                onClick={() =>
+                  exportMeasurements(data)
+                }
+                sx={{ color: 'white' }}
+              >
+                <DownloadIcon />
+              </IconButton>
+            </Tooltip>
+          </>
         }
       />
 
-      <PageContainer sx={{p: 1, pt: 1.5}}>
-        {/* <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            mb: 1,
-          }}
-        >
-          <Tooltip title="Export measurements (CSV)">
-            <IconButton
-              size="small"
-              onClick={() => exportMeasurements(data)}
-            >
-              <DownloadIcon />
-            </IconButton>
-          </Tooltip>
-        </Box> */}
-
+      <PageContainer sx={{ p: 1, pt: 1.5 }}>
         <MeasurementTable
           data={data}
           onEdit={openEdit}
@@ -134,7 +141,18 @@ export default function Measurements() {
           }}
         />
 
-        {/* TOAST */}
+        <ImportMeasurementsDialog
+          open={importOpen}
+          onClose={() => setImportOpen(false)}
+          onImport={() => {
+            refresh()
+            // showToast(
+            //   'Import completed',
+            //   'success'
+            // )
+          } }
+        />
+
         <AppToast
           open={toast.open}
           message={toast.message}

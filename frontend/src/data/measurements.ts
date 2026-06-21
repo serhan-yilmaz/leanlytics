@@ -23,6 +23,24 @@ export function updateMeasurement(updated: Measurement) {
   return updated
 }
 
+export function addOrUpdateMeasurements(imported: Measurement[]) {
+  const db = loadDB()
+
+  const byDate = new Map(
+    db.measurements.map(m => [m.date, m]),
+  )
+
+  for (const m of imported) {
+    byDate.set(m.date, m) // adds or overwrites automatically
+  }
+
+  db.measurements = Array.from(byDate.values())
+
+  saveDB(db)
+
+  return db.measurements
+}
+
 export function deleteMeasurement(id: string) {
   const db = loadDB()
 

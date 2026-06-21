@@ -4,7 +4,7 @@ import PageContainer from '../components/ui/PageContainer'
 import { Button, Paper, Stack, Typography } from '@mui/material'
 import { useNavigate } from '@tanstack/react-router'
 import sampleDataRaw from '../data/mock/measurements.csv?raw'
-import { parseCSV } from '../data/storage'
+import { parseSampleCSV } from '../data/storage'
 import { getMeasurements, saveMeasurements } from '../data/measurements'
 import { buildSmoothedBodyCompTable } from '../calculations/bodyCompSeries'
 import { getBodyCompTrendSummary } from '../calculations/bodyCompTrendSummary'
@@ -20,7 +20,7 @@ export default function Trends() {
   const navigate = useNavigate()
 
   const handleSampleData = () => {
-    saveMeasurements(parseCSV(sampleDataRaw))
+    saveMeasurements(parseSampleCSV(sampleDataRaw))
     window.location.reload()
   }
 

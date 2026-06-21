@@ -14,7 +14,7 @@ import {
 } from '../calculations/chartSeries'
 import XYTimeSeriesChart from '../components/charts/XYTimeSeriesChart.tsx'
 import { buildSmoothedBodyCompTable } from '../calculations/bodyCompSeries.ts'
-import { parseCSV } from '../data/storage.ts'
+import { parseSampleCSV } from '../data/storage.ts'
 
 import { Button, Paper, Stack, Typography } from '@mui/material'
 import sampleDataRaw from '../data/mock/measurements.csv?raw'
@@ -51,7 +51,7 @@ export default function Dashboard() {
   // console.log(slopeWindows);
   
   const handleSampleData = () => {
-    saveMeasurements(parseCSV(sampleDataRaw)) 
+    saveMeasurements(parseSampleCSV(sampleDataRaw)) 
     window.location.reload() 
   }
 
