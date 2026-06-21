@@ -2,8 +2,17 @@ import { useState } from 'react'
 
 import DownloadIcon from '@mui/icons-material/Download'
 import UploadIcon from '@mui/icons-material/Upload'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 
-import { IconButton, Tooltip } from '@mui/material'
+import {
+  IconButton,
+  Tooltip,
+  Menu,
+  MenuItem,
+  useMediaQuery,
+} from '@mui/material'
+
+import { useTheme } from '@mui/material/styles'
 
 import PageHeader from '../components/ui/PageHeader'
 import PageContainer from '../components/ui/PageContainer'
@@ -26,29 +35,26 @@ import { exportMeasurements } from '../data/exportMeasurements'
 import ImportMeasurementsDialog from '../components/measurements/ImportMeasurementsDialog'
 
 export default function Measurements() {
-  const [deleteId, setDeleteId] =
-    useState<string | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  const { toast, showToast, hideToast } =
-    useToast()
+  const { toast, showToast, hideToast } = useToast()
 
   const data = getMeasurements()
   const latestMeasurement = data[0]
 
-  console.log(data)
-
   const [, forceRefresh] = useState(0)
-  const refresh = () =>
-    forceRefresh((k) => k + 1)
+  const refresh = () => forceRefresh(k => k + 1)
 
-  const [formOpen, setFormOpen] =
-    useState(false)
+  const [formOpen, setFormOpen] = useState(false)
+  const [editItem, setEditItem] = useState<Measurement | null>(null)
 
-  const [editItem, setEditItem] =
-    useState<Measurement | null>(null)
+  const [importOpen, setImportOpen] = useState(false)
 
-  const [importOpen, setImportOpen] =
-    useState(false)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
+  const menuOpen = Boolean(menuAnchor)
 
   const openCreate = () => {
     setEditItem(null)
@@ -56,8 +62,7 @@ export default function Measurements() {
   }
 
   const openEdit = (id: string) => {
-    const item = data.find((x) => x.id === id)
-
+    const item = data.find(x => x.id === id)
     if (!item) return
 
     setEditItem(item)
@@ -84,25 +89,64 @@ export default function Measurements() {
         actionOnClick={openCreate}
         actions={
           <>
-            <Tooltip title="Import CSV">
-              <IconButton
-                onClick={() => setImportOpen(true)}
-                sx={{ color: 'white' }}
-              >
-                <UploadIcon />
-              </IconButton>
-            </Tooltip>
+            {isMobile ? (
+              <>
+                <Tooltip title="More">
+                  <IconButton
+                    onClick={e => setMenuAnchor(e.currentTarget)}
+                    sx={{ color: 'white' }}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                </Tooltip>
 
-            <Tooltip title="Export CSV">
-              <IconButton
-                onClick={() =>
-                  exportMeasurements(data)
-                }
-                sx={{ color: 'white' }}
-              >
-                <DownloadIcon />
-              </IconButton>
-            </Tooltip>
+                <Menu
+                  anchorEl={menuAnchor}
+                  open={menuOpen}
+                  onClose={() => setMenuAnchor(null)}
+                >
+                  <MenuItem
+                    onClick={() => {
+                      setImportOpen(true)
+                      setMenuAnchor(null)
+                    }}
+                  >
+                    <UploadIcon fontSize="small" sx={{ mr: 1 }} />
+                    Import CSV
+                  </MenuItem>
+
+                  <MenuItem
+                    onClick={() => {
+                      exportMeasurements(data)
+                      setMenuAnchor(null)
+                    }}
+                  >
+                    <DownloadIcon fontSize="small" sx={{ mr: 1 }} />
+                    Export CSV
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <>
+                <Tooltip title="Import CSV">
+                  <IconButton
+                    onClick={() => setImportOpen(true)}
+                    sx={{ color: 'white' }}
+                  >
+                    <UploadIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Export CSV">
+                  <IconButton
+                    onClick={() => exportMeasurements(data)}
+                    sx={{ color: 'white' }}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
           </>
         }
       />
@@ -146,10 +190,6 @@ export default function Measurements() {
           onClose={() => setImportOpen(false)}
           onImport={() => {
             refresh()
-            // showToast(
-            //   'Import completed',
-            //   'success'
-            // )
           } }
         />
 
