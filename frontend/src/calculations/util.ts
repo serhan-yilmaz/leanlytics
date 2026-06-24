@@ -10,3 +10,11 @@ export function dateToTimestamp(
     return new Date(date).getTime()
 }
 
+export function shallowClone<T>(original: T[]): T[];
+export function shallowClone<T extends object>(original: T): T;
+export function shallowClone(original: any) {
+    if (Array.isArray(original)) {
+        return [...original];
+    }
+    return { ...original };
+}

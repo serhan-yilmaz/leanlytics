@@ -90,7 +90,7 @@ const fields: FieldConfig[] = [
     type: 'number',
     grid: 6,
     required: true,
-    min: 40,
+    min: 50,
     max: 300,
     placeholder: 'Waist in cm',
   },

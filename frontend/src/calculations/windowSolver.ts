@@ -1,5 +1,5 @@
 import type { Measurement } from '../data/types'
-import { timestampToDate } from './util'
+import { shallowClone, timestampToDate } from './util'
 
 type Target = {
   key: string, 
@@ -104,7 +104,8 @@ export function findSlopeWindows(
     targets: []
   }
 
-  let targets = structuredClone(TARGETS)
+  // let targets = structuredClone(TARGETS)
+  let targets = shallowClone<Target[]>(TARGETS)
   if(validWindowTarget){
     targets.push({
       key: "Custom", 

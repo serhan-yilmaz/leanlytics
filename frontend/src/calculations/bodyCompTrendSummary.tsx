@@ -2,7 +2,7 @@ import { useMemo, type JSX } from "react"
 import { bodyfatDiffSD, fatMassDiffSD, leanDiffPercentSD, leanMassDiffSD, normLeanMassDiffSD, weightDiffSD } from "./bodyCompUncertainty"
 import { dateToTimestamp, timestampToDate } from "./util"
 import TrendWindowTooltip from "../components/plots/TrendWindowTooltip"
-import type { WindowSolution } from "./windowSolver"
+import { confidenceScore, type WindowSolution } from "./windowSolver"
 
 export type BodyCompTrendSummary = {
   rateUnit: "month" | "week"
@@ -48,7 +48,9 @@ function convertMonthsToUnit(months: number, unit: "month" | "week") {
 export function prepareBodyCompTrendSummary(
  first: Props, 
  last: Props, 
- windowSolution?: WindowSolution, 
+ windowSolution?: {
+  score: number
+ }, 
  rateUnit: "month" | "week" = "month",
 ): BodyCompTrendSummary | undefined {
   const months =
@@ -295,5 +297,14 @@ export function getBodyCompTrendSummary(
   const first = sorted[firstIndex]
   // const first = sorted[0]
 
-  return prepareBodyCompTrendSummary(first, last)
+  const windowSolution = {
+    score: confidenceScore({
+      firstCenter: dateToTimestamp(first.date), 
+      lastCenter: dateToTimestamp(last.date), 
+      sampleCount1: first.sampleCount, 
+      sampleCount2: last.sampleCount, 
+    })
+  }
+
+  return prepareBodyCompTrendSummary(first, last, windowSolution)
 }
