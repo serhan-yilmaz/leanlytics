@@ -1,3 +1,5 @@
+import { BODYFAT_TO_LEAN_COEFFICIENT } from "./bodyComposition"
+
 export type BodyCompErrorModel = {
   weight: {
     sigma: number
@@ -6,6 +8,10 @@ export type BodyCompErrorModel = {
   bodyFat: {
     sigmaRandom: number
     sigmaBias: number
+  }
+
+  waist: {
+    sigma: number
   }
 
   targetBF: number
@@ -17,8 +23,11 @@ export const errorModel: BodyCompErrorModel = {
   },
   bodyFat: {
     sigmaRandom: 1 / 100,
-    sigmaBias: 3 / 100
+    sigmaBias: 4 / 100
   },
+  waist: {
+    sigma: 2
+  }, 
   targetBF: 0.15
 }
 
@@ -30,6 +39,32 @@ function bodyFatSigma(model: BodyCompErrorModel) {
 }
 
 const bf = (bodyFat: number) => bodyFat / 100
+
+export function weightSD(
+  n: number,
+  model: BodyCompErrorModel = errorModel
+): number {
+  return model.weight.sigma / Math.sqrt(n)
+}
+
+export function bodyFatSD(
+  n: number,
+  model: BodyCompErrorModel = errorModel
+): number {
+  return Math.sqrt(
+    model.bodyFat.sigmaBias ** 2 + 
+    model.bodyFat.sigmaRandom ** 2 / n
+  )
+}
+
+export function waistSD(
+  n: number,
+  model: BodyCompErrorModel = errorModel
+): number {
+  return Math.sqrt(
+    model.waist.sigma ** 2 / n 
+  )
+}
 
 export function fatMassSD(
   weight: number,        // W
@@ -77,6 +112,49 @@ export type BodyCompPoint = {
   weight: number | undefined
   bodyFat: number | undefined // %
   sampleCount: number
+}
+
+export function normLeanMassSD(
+  i: BodyCompPoint,
+  model: BodyCompErrorModel = errorModel
+): number {
+  const sW = model.weight.sigma
+  const sBFu = model.bodyFat.sigmaBias
+  const sBFr = model.bodyFat.sigmaRandom
+  const sBF = (sBFu ** 2 + sBFr ** 2)
+
+  const BFi = i.bodyFat? bf(i.bodyFat): 0
+
+  const Wi = i.weight? i.weight: 0
+
+  const ni = i.sampleCount
+  
+  const varMultiplier = (1 + BODYFAT_TO_LEAN_COEFFICIENT) ** 2
+  const c = (1 - model.targetBF) / (BODYFAT_TO_LEAN_COEFFICIENT - (1 + BODYFAT_TO_LEAN_COEFFICIENT) * model.targetBF)
+
+  // 1. bias term
+  const termBias = varMultiplier * Wi ** 2 * sBFu ** 2
+
+  // 2. weight-related term
+  const termWeight =
+    (
+      (
+        BODYFAT_TO_LEAN_COEFFICIENT - (1 + BODYFAT_TO_LEAN_COEFFICIENT) * BFi
+      ) ** 2 / ni
+    ) * sW ** 2
+
+  // 3. random BF term
+  const termBF = varMultiplier * (Wi ** 2 / ni) * sBFr ** 2
+
+  // 4. interaction term
+  const termCross = varMultiplier * sW ** 2 * sBF * (1 / ni)
+
+  return c * Math.sqrt(
+    termBias +
+    termWeight +
+    termBF +
+    termCross
+  )
 }
 
 export function leanMassDiffSD(
@@ -218,25 +296,32 @@ export function normLeanMassDiffSD(
   const ni = i.sampleCount
   const nj = j.sampleCount
   
-  const c = (1 - model.targetBF) / (2 - 3 * model.targetBF)
+  const varMultiplier = (1 + BODYFAT_TO_LEAN_COEFFICIENT) ** 2
+  const c = (1 - model.targetBF) / (BODYFAT_TO_LEAN_COEFFICIENT - (1 + BODYFAT_TO_LEAN_COEFFICIENT) * model.targetBF)
 
   // 1. bias term
   const termBias =
-    9 * (Wi - Wj) ** 2 * sBFu ** 2
+    varMultiplier * (Wi - Wj) ** 2 * sBFu ** 2
 
   // 2. weight-related term
   const termWeight =
-    ((2 - 3 * BFi) ** 2 / ni + (2 - 3 * BFj) ** 2 / nj) *
-    sW ** 2
+    (
+      (
+        BODYFAT_TO_LEAN_COEFFICIENT - (1 + BODYFAT_TO_LEAN_COEFFICIENT) * BFi
+      ) ** 2 / ni + 
+      (
+        BODYFAT_TO_LEAN_COEFFICIENT - (1 + BODYFAT_TO_LEAN_COEFFICIENT) * BFj
+      ) ** 2 / nj
+    ) * sW ** 2
 
   // 3. random BF term
   const termBF =
-    9 * (Wi ** 2 / ni + Wj ** 2 / nj) *
+    varMultiplier * (Wi ** 2 / ni + Wj ** 2 / nj) *
     sBFr ** 2
 
   // 4. interaction term
   const termCross =
-    9 * sW ** 2 * sBF * (1 / ni + 1 / nj)
+    varMultiplier * sW ** 2 * sBF * (1 / ni + 1 / nj)
 
   return c * Math.sqrt(
     termBias +

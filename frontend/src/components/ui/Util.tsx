@@ -9,3 +9,4 @@ export function combineSxProps(
       ...(Array.isArray(sxProps2) ? sxProps2 : [sxProps2]), 
      ]
 }
+

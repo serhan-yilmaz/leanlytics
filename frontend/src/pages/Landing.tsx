@@ -144,7 +144,8 @@ export default function Landing() {
                   variant="body2"
                   sx={{ color: 'text.secondary' }}
                 >
-                  Navy method with lean mass and fat mass estimation.
+                  Using waist and height measurements
+                  {/* Navy method with lean mass and fat mass estimation. */}
                 </Typography>
 
               </CardContent>
@@ -207,16 +208,16 @@ export default function Landing() {
                       }}
                     >
                       <li>
-                        Weekly weight measurements
+                        Weight measurements
                       </li>
 
                       <li>
                         Waist circumference measurements
                       </li>
 
-                      <li>
+                      {/* <li>
                         Neck circumference measurements
-                      </li>
+                      </li> */}
 
                       <li>
                         Fixed profile values such as height and sex
@@ -245,7 +246,8 @@ export default function Landing() {
                       }}
                     >
                       <li>
-                        Calculates body fat percentage using the US Navy method
+                        Estimates body fat percentage using a <a href="https://en.wikipedia.org/wiki/Waist-to-height_ratio" target='blank'>waist-to-height ratio</a> based model
+                        {/* Calculates body fat percentage using the US Navy method */}
                       </li>
 
                       <li>

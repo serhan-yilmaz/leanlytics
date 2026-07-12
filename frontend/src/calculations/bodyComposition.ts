@@ -1,4 +1,6 @@
 
+export const BODYFAT_TO_LEAN_COEFFICIENT = 1.3
+
 type NavyBodyFatInput = {
   sex: 'male' | 'female'
   height: number | undefined
@@ -24,30 +26,33 @@ export function calculateBodyFat({
     let bodyFat = 0
 
     if (sex === 'male') {
-      bodyFat =
-        495 /
-          (
-            1.0324 -
-            0.19077 *
-              Math.log10((waist - neck))  +
-            0.15456 *
-              Math.log10(height) 
-          ) -
-        450
+      bodyFat = (
+        67.6 - (22.5 * height / waist)
+      )
+      // bodyFat =
+      //   495 /
+      //     (
+      //       1.0324 -
+      //       0.19077 *
+      //         Math.log10((waist - neck))  +
+      //       0.15456 *
+      //         Math.log10(height) 
+      //     ) -
+      //   450
     } else {
       if (!hip) return null
 
       bodyFat =
         495 /
-          (
-            1.29579 -
-            0.35004 *
-              Math.log10(
-                waist + hip - neck,
-              ) +
-            0.221 *
-              Math.log10(height)
-          ) -
+        (
+          1.29579 -
+          0.35004 *
+          Math.log10(
+            waist + hip - neck,
+          ) +
+          0.221 *
+          Math.log10(height)
+        ) -
         450
     }
 
@@ -58,8 +63,8 @@ export function calculateBodyFat({
 }
 
 export function calculateFFMI({
-    leanMass, 
-    height, 
+  leanMass,
+  height,
 }: any): number | null {
 
   // basic validation
@@ -68,8 +73,15 @@ export function calculateFFMI({
   }
 
   try {
-    let ffmi = leanMass / ((height/100)^2)
-    ffmi = ffmi - 6.3 * (1.8 - (height/2.54) * 0.0254)
+    // let ffmi = leanMass / ((height / 100) ^ 2)
+    let ffmi = leanMass / ((height / 100) ** 2)
+
+    // console.log({
+    //   leanMass: leanMass,
+    //   height: height,
+    //   ffmi: ffmi,
+    // })
+    // ffmi = ffmi - 6.3 * (1.8 - (height/2.54) * 0.0254)
 
     return Number(ffmi.toFixed(1))
   } catch {
@@ -78,10 +90,10 @@ export function calculateFFMI({
 }
 
 export function calculateBodyCompAtBF({
-    weight, 
-    height, 
-    bodyFat, 
-    bfTarget
+  weight,
+  height,
+  bodyFat,
+  bfTarget
 }: any): any {
 
   // basic validation
@@ -90,20 +102,20 @@ export function calculateBodyCompAtBF({
   }
 
   try {
-    let weightAtBf = weight * (2 - 3 * bodyFat/100) / (2 - 3 * bfTarget/100)
-    let leanMass = weightAtBf * (1 - bfTarget/100)
-    let fatMass = weightAtBf * bfTarget/100
+    let weightAtBf = weight * (BODYFAT_TO_LEAN_COEFFICIENT - (1 + BODYFAT_TO_LEAN_COEFFICIENT) * bodyFat / 100) / (BODYFAT_TO_LEAN_COEFFICIENT - (1 + BODYFAT_TO_LEAN_COEFFICIENT) * bfTarget / 100)
+    let leanMass = weightAtBf * (1 - bfTarget / 100)
+    let fatMass = weightAtBf * bfTarget / 100
     let FFMI = calculateFFMI({
-        leanMass: leanMass, 
-        height: height
+      leanMass: leanMass,
+      height: height
     }) as number | undefined
 
     return {
-        weight: weightAtBf, 
-        bodyFat: bfTarget,
-        leanMass: leanMass,
-        fatMass: fatMass,
-        FFMI: FFMI
+      weight: weightAtBf,
+      bodyFat: bfTarget,
+      leanMass: leanMass,
+      fatMass: fatMass,
+      FFMI: FFMI
     }
   } catch {
     return null
@@ -113,7 +125,7 @@ export function calculateBodyCompAtBF({
 export function getBodyComposition(
   m: any,
 ) {
-  const bf = m.bodyFat?? calculateBodyFat({
+  const bf = m.bodyFat ?? calculateBodyFat({
     sex: 'male',
     height: m.height,
     waist: m.waist,
@@ -134,16 +146,16 @@ export function getBodyComposition(
     m.weight - fatMass
 
   const FFMI = calculateFFMI({
-    leanMass: leanMass, 
+    leanMass: leanMass,
     height: m.height
-    }) as number | undefined
+  }) as number | undefined
 
   const bodyComp = calculateBodyCompAtBF({
-    weight: m.weight, 
-    height: m.height, 
-    bodyFat: bf, 
-    bfTarget: 15, 
-    })
+    weight: m.weight,
+    height: m.height,
+    bodyFat: bf,
+    bfTarget: 15,
+  })
 
   const FFMIatBF15 = bodyComp.FFMI as number | undefined
   const LeanMassatBF15 = bodyComp.leanMass as number | undefined
@@ -152,8 +164,8 @@ export function getBodyComposition(
     bodyFat: bf,
     leanMass: leanMass,
     fatMass: fatMass,
-    FFMI: FFMI, 
-    FFMIatBF15: FFMIatBF15, 
-    LeanMassatBF15: LeanMassatBF15, 
+    FFMI: FFMI,
+    FFMIatBF15: FFMIatBF15,
+    LeanMassatBF15: LeanMassatBF15,
   }
 }

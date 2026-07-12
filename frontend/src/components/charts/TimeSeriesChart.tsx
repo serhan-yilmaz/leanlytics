@@ -45,12 +45,12 @@ export default function TimeSeriesChart({
   series,
   label,
   valueLabel,
-  labelRight, 
+  labelRight,
   yDomainPadding = 5,
-  yDomainRounding = 5, 
-  height = 200, 
-  seriesLabel = undefined, 
-  seriesColor = undefined, 
+  yDomainRounding = 5,
+  height = 200,
+  seriesLabel = undefined,
+  seriesColor = undefined,
 }: Props) {
   const chartSeries =
     series ??
@@ -62,50 +62,50 @@ export default function TimeSeriesChart({
       },
     ]
 
-    const leftValues = chartSeries
+  const leftValues = chartSeries
     .filter((s) => (s.yAxisId ?? 'left') === 'left')
     .flatMap((s) =>
-        data
+      data
         .map((p) => p[s.key])
         .filter((v): v is number => typeof v === 'number'),
     )
 
-    const rightValues = chartSeries
+  const rightValues = chartSeries
     .filter((s) => s.yAxisId === 'right')
     .flatMap((s) =>
-        data
+      data
         .map((p) => p[s.key])
         .filter((v): v is number => typeof v === 'number'),
     )
 
-    // const leftValues = chartSeries
-    // .filter((s) => (s.yAxisId ?? 'left') === 'left')
-    // .flatMap(...)
+  // const leftValues = chartSeries
+  // .filter((s) => (s.yAxisId ?? 'left') === 'left')
+  // .flatMap(...)
 
-    // const rightValues = chartSeries
-    // .filter((s) => s.yAxisId === 'right')
-    // .flatMap(...)
+  // const rightValues = chartSeries
+  // .filter((s) => s.yAxisId === 'right')
+  // .flatMap(...)
 
-    const leftMin = leftValues.length ? Math.min(...leftValues) : 0
-    const leftMax = leftValues.length ? Math.max(...leftValues) : 0
+  const leftMin = leftValues.length ? Math.min(...leftValues) : 0
+  const leftMax = leftValues.length ? Math.max(...leftValues) : 0
 
-    const rightMin = rightValues.length ? Math.min(...rightValues) : 0
-    const rightMax = rightValues.length ? Math.max(...rightValues) : 0
+  const rightMin = rightValues.length ? Math.min(...rightValues) : 0
+  const rightMax = rightValues.length ? Math.max(...rightValues) : 0
 
-    const hasRightAxis = chartSeries.some(
+  const hasRightAxis = chartSeries.some(
     (s) => s.yAxisId === 'right',
-    )
+  )
 
-    const leftSeries = chartSeries.filter(
+  const leftSeries = chartSeries.filter(
     (s) => (s.yAxisId ?? 'left') === 'left',
-    )
+  )
 
-    const rightSeries = chartSeries.filter(
+  const rightSeries = chartSeries.filter(
     (s) => s.yAxisId === 'right',
-    )
+  )
 
-    const leftAxisColor = leftSeries[0]?.color? darken(leftSeries[0]?.color, 30): '#666'
-    const rightAxisColor = rightSeries[0]?.color? darken(rightSeries[0]?.color, 30): '#666'
+  const leftAxisColor = leftSeries[0]?.color ? darken(leftSeries[0]?.color, 30) : '#666'
+  const rightAxisColor = rightSeries[0]?.color ? darken(rightSeries[0]?.color, 30) : '#666'
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -139,51 +139,51 @@ export default function TimeSeriesChart({
         />
 
         {hasRightAxis && (
-        <YAxis
-          yAxisId={"right"}
-          orientation="right"
-          domain={[
-            Math.max(
-              Math.floor(
-                (rightMin - yDomainPadding) / yDomainRounding,
+          <YAxis
+            yAxisId={"right"}
+            orientation="right"
+            domain={[
+              Math.max(
+                Math.floor(
+                  (rightMin - yDomainPadding) / yDomainRounding,
+                ) * yDomainRounding,
+                0,
+              ),
+              Math.ceil(
+                (rightMax + yDomainPadding) / yDomainRounding,
               ) * yDomainRounding,
-              0,
-            ),
-            Math.ceil(
-              (rightMax + yDomainPadding) / yDomainRounding,
-            ) * yDomainRounding,
-          ]}
-          label={{
-            value: labelRight,
-            angle: -90,
-            position: 'insideRight',
-            style: {
-              fill: rightAxisColor, 
-              textAnchor: 'middle',
-            },
-          }}
-        />
+            ]}
+            label={{
+              value: labelRight,
+              angle: -90,
+              position: 'insideRight',
+              style: {
+                fill: rightAxisColor,
+                textAnchor: 'middle',
+              },
+            }}
+          />
         )}
 
         <Tooltip
-        content={(props: any) => {
+          content={(props: any) => {
             const payload = props.payload ?? []
             const label = props.label
 
             if (!payload.length) return null
 
             return (
-            <TimeChartTooltip
+              <TimeChartTooltip
                 active={props.active}
                 label={label}
                 payload={payload}
                 seriesLabel={seriesLabel}
                 seriesColor={seriesColor}
-            />
+              />
             )
-        }}
+          }}
         />
-        
+
         {/* <Tooltip content={<TimeChartTooltip />} /> */}
 
         {chartSeries.length > 1 && <Legend />}

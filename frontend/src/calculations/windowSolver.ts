@@ -1,5 +1,5 @@
 import type { Measurement } from '../data/types'
-import { shallowClone, timestampToDate } from './util'
+import { millisecondsToDays, shallowClone, timestampToDate } from './util'
 
 type Target = {
   key: string, 
@@ -598,12 +598,6 @@ function computeDelayDays(
     last -
     firstCenter
   )
-}
-
-function millisecondsToDays(
-    value: number
-): number {
-    return value / 86400000
 }
 
 function getFirstCenter(

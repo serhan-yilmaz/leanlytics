@@ -137,7 +137,7 @@ function MetricText({
   tooltip,
   unitSuffix,
   confidenceScore,
-  minimumConfidenceScore = REQUIRED_MINIMUM_CONFIDENCE_SCORE, 
+  minimumConfidenceScore = REQUIRED_MINIMUM_CONFIDENCE_SCORE,
 }: {
   label: string
   value?: React.ReactNode
@@ -149,9 +149,9 @@ function MetricText({
   const metricComponent = (
     <Typography variant="body2">
       {label}:{' '}
-        <MetricValue tooltip={tooltip} bold={false}>
-          <strong>{value}</strong> {unitSuffix}
-        </MetricValue>
+      <MetricValue tooltip={tooltip} bold={false}>
+        <strong>{value}</strong> {unitSuffix}
+      </MetricValue>
     </Typography>
   )
 
@@ -204,10 +204,10 @@ function MetricText({
 export default function TrendWindowsSection({
   slopeWindows,
   measurements,
-  windowSolutionResults, 
+  windowSolutionResults,
   analysisMeasurementIndex,
   onAnalysisMeasurementIndexChange,
-  customComparisonIndex, 
+  customComparisonIndex,
   onCustomComparisonIndexChange
 }: Props) {
   const [confidenceOpen, setConfidenceOpen] =
@@ -226,10 +226,10 @@ export default function TrendWindowsSection({
   //   customComparisonIndex < analysisMeasurementIndex
 
   const isAnchorValid =
-    customComparisonIndex == undefined || 
-    analysisMeasurementIndex == undefined || 
-    windowSolutionResults.targets.length < customComparisonIndex || 
-    windowSolutionResults.targets[customComparisonIndex] == undefined || 
+    customComparisonIndex == undefined ||
+    analysisMeasurementIndex == undefined ||
+    windowSolutionResults.targets.length < customComparisonIndex ||
+    windowSolutionResults.targets[customComparisonIndex] == undefined ||
     windowSolutionResults.targets[customComparisonIndex].date < measurements[analysisMeasurementIndex].date
 
   const entries =
@@ -243,9 +243,9 @@ export default function TrendWindowsSection({
         ] => (
           x[1] !== null &&
           x[1].windowSolution.score >= Math.max(
-              REQUIRED_MINIMUM_CONFIDENCE_SCORE,
-              minimumConfidenceScore,
-            )
+            REQUIRED_MINIMUM_CONFIDENCE_SCORE,
+            minimumConfidenceScore,
+          )
         ),
       )
       .sort(
@@ -397,7 +397,7 @@ export default function TrendWindowsSection({
                     'space-between',
                 }}
               >
-                <Tooltip title = {`${pair.first.date} → ${pair.last.date}`}>
+                <Tooltip title={`${pair.first.date} → ${pair.last.date}`}>
                   <Typography variant="subtitle2">
                     {
                       pair.windowSolution
@@ -629,10 +629,10 @@ export default function TrendWindowsSection({
 
                 {windowSolutionResults.targets.map((m, index) => (
                   (m.score >= minimumConfidenceScore) && (
-                  <MenuItem key={m.target} value={index}>
-                    {m.date}
-                    {/* {index === 0 ? ' (Latest)' : ''} */}
-                  </MenuItem>
+                    <MenuItem key={m.target} value={index}>
+                      {m.date}
+                      {/* {index === 0 ? ' (Latest)' : ''} */}
+                    </MenuItem>
                   )
                 ))}
               </Select>

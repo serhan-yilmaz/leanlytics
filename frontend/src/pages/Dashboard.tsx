@@ -19,9 +19,10 @@ import { parseSampleCSV } from '../data/storage.ts'
 import { Button, Paper, Stack, Typography } from '@mui/material'
 import sampleDataRaw from '../data/mock/measurements.csv?raw'
 import { findSlopeWindows } from '../calculations/windowSolver.ts'
-import { buildWindowBodyCompTable } from '../calculations/windowBodyComp.ts'
+import { buildWindowBodyCompEstimateTable, buildWindowBodyCompTable, solveEstimateWindows } from '../calculations/windowBodyComp.ts'
 import TrendWindowsSection from '../components/plots/TrendWindowsSection.tsx'
 import { useState } from 'react'
+import BodyCompositionSection from '../components/plots/BodyCompositionSection.tsx'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -46,6 +47,13 @@ export default function Dashboard() {
     data, 
     findSlopeWindows(data, analysisMeasurementIndex, validWindowTarget)
   )
+
+  const pointEstimateResults = buildWindowBodyCompEstimateTable(
+    data, 
+    solveEstimateWindows(data, analysisMeasurementIndex)
+  )
+  console.log(pointEstimateResults)
+
   // console.log(validWindowTarget);
   // console.log(slopeSolutionResults.targets);
   // console.log(slopeWindows);
@@ -113,6 +121,12 @@ export default function Dashboard() {
           onAnalysisMeasurementIndexChange={setAnalysisMeasurementIndex} 
           customComparisonIndex={customComparisonIndex} 
           onCustomComparisonIndexChange={onCustomComparisonIndexChange}
+      />
+      <BodyCompositionSection
+        estimateResults={pointEstimateResults}
+        measurements={data}
+        analysisMeasurementIndex={analysisMeasurementIndex}
+        onAnalysisMeasurementIndexChange={setAnalysisMeasurementIndex}
       />
         {/* <TrendWindowsSection slopeWindows={slopeWindows}/> */}
 
