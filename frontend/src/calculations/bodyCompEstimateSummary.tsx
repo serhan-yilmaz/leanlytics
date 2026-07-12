@@ -2,7 +2,7 @@ import { bodyFatSD, fatMassSD, leanMassSD, normLeanMassSD, waistSD, weightSD } f
 import { BodyCompEstimateTooltip } from "../components/plots/TrendWindowTooltip"
 
 import percentilesData from '../data/json/percentiles.json'
-import { Box, Typography } from "@mui/material"
+import { Box, Divider, Table, TableBody, TableCell, TableRow, Typography } from "@mui/material"
 import { ordinalSuffix } from "./util"
 
 export type BodyCompEstimateSummary = {
@@ -273,6 +273,7 @@ export function prepareBodyCompEstimateSummary(
       percentilesData.nhanes.quantiles,
     )
 
+  const nhanesPopulationShort = "NHANES 2017-2018 US adult males"
   const nhanesPopulationText = "NHANES 2017-2018 US adult males, based on DXA body fat measurements."
 
   const armyPopulationText = "US Army male personnel (2022-2024), based on DXA percentile data from Sergi et al. (2025)."
@@ -296,6 +297,12 @@ export function prepareBodyCompEstimateSummary(
       }}
       population={nhanesPopulationText}
       description=""
+      ref={
+        getReferencePercentiles(
+          percentilesData.nhanes.ffmi15,
+          percentilesData.nhanes.quantiles,
+        )
+      }
     />
   )
 
@@ -315,6 +322,12 @@ export function prepareBodyCompEstimateSummary(
       }}
       population={armyPopulationText}
       description=""
+      ref={
+        getReferencePercentiles(
+          percentilesData.army.ffmi15,
+          percentilesData.army.quantiles,
+        )
+      }
     />
   )
 
@@ -334,6 +347,12 @@ export function prepareBodyCompEstimateSummary(
       }}
       population={nhanesPopulationText}
       description=""
+      ref={
+        getReferencePercentiles(
+          percentilesData.nhanes.ffmi,
+          percentilesData.nhanes.quantiles,
+        )
+      }
     />
   )
 
@@ -354,6 +373,12 @@ export function prepareBodyCompEstimateSummary(
       }}
       population={armyPopulationText}
       description=""
+      ref={
+        getReferencePercentiles(
+          percentilesData.army.ffmi,
+          percentilesData.army.quantiles,
+        )
+      }
     />
   )
 
@@ -371,8 +396,15 @@ export function prepareBodyCompEstimateSummary(
         high:
           nhanesWHtRPercentileRange.high,
       }}
-      population={nhanesPopulationText}
+      population={nhanesPopulationShort}
       description=""
+      ref={
+        getReferencePercentiles(
+          percentilesData.nhanes.whtr,
+          percentilesData.nhanes.quantiles,
+        )
+      }
+      digits={2}
     />
   )
 
@@ -499,6 +531,8 @@ function PopulationPercentileTooltip({
   range,
   population,
   description,
+  ref,
+  digits = 1
 }: {
   title: string
   metric: string
@@ -510,12 +544,16 @@ function PopulationPercentileTooltip({
   }
   population: string
   description: string
+  ref: Record<number, number>
+  digits?: number
 }) {
   return (
     <Box>
       <Typography variant="subtitle2">
         {title}
       </Typography>
+
+      <Divider sx={{ my: 1, borderColor: "inherit" }} />
 
       <Typography variant="body2">
         {/* {metric}: {value.toFixed(2)} {", "} {ordinalSuffix(percentile)} percentile */}
@@ -555,6 +593,81 @@ function PopulationPercentileTooltip({
       >
         {description}
       </Typography>
+
+      <Box sx={{ mt: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+            display: "block",
+            mb: 0.5,
+          }}
+        >
+          Reference values
+        </Typography>
+
+        <Table
+          size="small"
+          sx={{
+            color: "inherit",
+            // "& td": {
+            //   borderBottom: "none",
+            //   py: 0.25,
+            //   px: 0.75,
+            //   fontSize: "0.75rem",
+            // },
+            "& .MuiTableCell-root": {
+              color: "inherit",
+              borderBottom: "none",
+              py: 0.25,
+              px: 0.75,
+              textAlign: "center",
+              fontSize: "0.82rem",
+            }
+          }}
+        >
+          <TableBody>
+            <TableRow>
+              <TableCell>10%</TableCell>
+              <TableCell>25%</TableCell>
+              <TableCell>50%</TableCell>
+              <TableCell>75%</TableCell>
+              <TableCell>90%</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell>{ref[10].toFixed(digits)}</TableCell>
+              <TableCell>{ref[25].toFixed(digits)}</TableCell>
+              <TableCell>{ref[50].toFixed(digits)}</TableCell>
+              <TableCell>{ref[75].toFixed(digits)}</TableCell>
+              <TableCell>{ref[90].toFixed(digits)}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Box>
+
+
     </Box>
+  )
+}
+
+function getReferencePercentiles(
+  values: number[],
+  quantiles: number[],
+): Record<number, number> {
+  const targets = [10, 25, 50, 75, 90]
+
+  return Object.fromEntries(
+    targets.map((p) => {
+      const idx =
+        quantiles.findIndex(
+          q => Math.round(q * 100) === p,
+        )
+
+      return [
+        p,
+        values[idx],
+      ]
+    }),
   )
 }
